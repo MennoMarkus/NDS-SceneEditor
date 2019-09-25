@@ -3,8 +3,8 @@
 
 enum class PrimativeType
 {
-	TRIANGLES,
-	TRIANGLE_STRIP
+	TRIANGLES = 0,
+	TRIANGLE_STRIP = 2
 };
 
 struct Primative

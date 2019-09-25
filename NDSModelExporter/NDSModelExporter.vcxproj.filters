@@ -24,6 +24,9 @@
     <ClCompile Include="Source\Stripify\Stripify.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\NDSModExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\TinyObjLoader\tiny_obj_loader.h">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Stripify\Primative.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\NDSModExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

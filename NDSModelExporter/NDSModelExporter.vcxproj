@@ -149,12 +149,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\NDSModExporter.cpp" />
     <ClCompile Include="Source\ObjLoader.cpp" />
     <ClCompile Include="Source\Stripify\Stripify.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\TinyObjLoader\tiny_obj_loader.h" />
     <ClInclude Include="Include\Model.h" />
+    <ClInclude Include="Include\NDSModExporter.h" />
     <ClInclude Include="Include\ObjLoader.h" />
     <ClInclude Include="Include\Stripify\AdjecentTriangle.h" />
     <ClInclude Include="Include\Stripify\Primative.h" />

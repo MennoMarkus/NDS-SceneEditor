@@ -9,6 +9,7 @@ struct Vertex
 	float diffuseColor[3];
 	float ambientColor[3];
 	float specularColor[3];
+	float shininess;
 	float emissionColor[3];
 	float alpha;
 
@@ -20,6 +21,7 @@ struct Vertex
 			   diffuseColor[0] == other.diffuseColor[0] && diffuseColor[1] == other.diffuseColor[1] && diffuseColor[2] == other.diffuseColor[2] &&
 			   ambientColor[0] == other.ambientColor[0] && ambientColor[1] == other.ambientColor[1] && ambientColor[2] == other.ambientColor[2] &&
 			   specularColor[0] == other.specularColor[0] && specularColor[1] == other.specularColor[1] && specularColor[2] == other.specularColor[2] &&
+			   shininess == other.shininess &&
 			   emissionColor[0] == other.emissionColor[0] && emissionColor[1] == other.emissionColor[1] && emissionColor[2] == other.emissionColor[2] &&
 			   alpha == other.alpha;
 	}

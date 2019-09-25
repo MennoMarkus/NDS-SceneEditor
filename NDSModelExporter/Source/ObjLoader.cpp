@@ -53,6 +53,7 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 			float diffuseColor[3];
 			float ambientColor[3];
 			float specularColor[3];
+			float shininess;
 			float emissionColor[3];
 			float alpha;
 			if (!isDefaultMaterial)
@@ -68,6 +69,8 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 				specularColor[0] = materials[materialId].specular[0];
 				specularColor[1] = materials[materialId].specular[1];
 				specularColor[2] = materials[materialId].specular[2];
+
+				shininess = materials[materialId].shininess;
 
 				emissionColor[0] = materials[materialId].emission[0];
 				emissionColor[1] = materials[materialId].emission[1];
@@ -88,6 +91,8 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 				specularColor[0] = -1.f;
 				specularColor[1] = -1.f;
 				specularColor[2] = -1.f;
+
+				shininess = -1.f;
 
 				emissionColor[0] = -1.f;
 				emissionColor[1] = -1.f;
@@ -187,6 +192,7 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 				std::copy(std::begin(diffuseColor), std::end(diffuseColor), std::begin(newVertex.diffuseColor));
 				std::copy(std::begin(ambientColor), std::end(ambientColor), std::begin(newVertex.ambientColor));
 				std::copy(std::begin(specularColor), std::end(specularColor), std::begin(newVertex.specularColor));
+				newVertex.shininess = shininess;
 				std::copy(std::begin(emissionColor), std::end(emissionColor), std::begin(newVertex.emissionColor));
 				newVertex.alpha = alpha;
 
