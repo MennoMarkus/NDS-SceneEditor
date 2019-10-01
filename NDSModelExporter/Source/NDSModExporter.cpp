@@ -117,9 +117,9 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 		// Set normal command
 		if (previousVertex == nullptr || previousVertex->normal[0] != currentVertex.normal[0] || previousVertex->normal[1] != currentVertex.normal[1] || previousVertex->normal[2] != currentVertex.normal[2])
 		{
-			currentPackedCommand.setNormalCommand(currentCommandId, currentVertex.normal[0], currentVertex.normal[1], currentVertex.normal[2]);
+			//currentPackedCommand.setNormalCommand(currentCommandId, currentVertex.normal[0], currentVertex.normal[1], currentVertex.normal[2]);
 			// Create new command pack if the current is filled
-			currentCommandId++;
+			//currentCommandId++;
 			if (currentCommandId >= 4)
 			{
 				o_commandList.push_back(currentPackedCommand);

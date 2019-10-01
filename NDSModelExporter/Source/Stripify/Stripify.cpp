@@ -52,8 +52,32 @@ std::vector<Primative> Stripify::Strip(const std::vector<unsigned int>& indexBuf
 					if (firstTriangle->adjecentTriangles[i] == secondTriangle)
 					{
 						triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 2) % 3]);
-						triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
-						triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
+
+						// Find the second vertex
+						if (triangleStrip.size() >= 3)
+						{
+							AdjecentTriangle* thirdTriangle = triangleStrip[2];
+							for (int j = 0; j < 3; j++)
+							{
+								if (thirdTriangle->vertices[j] == firstTriangle->vertices[(i + 3) % 3])
+								{
+									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
+									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
+									break;
+								}
+								else if (thirdTriangle->vertices[j] == firstTriangle->vertices[(i + 4) % 3])
+								{
+									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
+									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
+									break;
+								}
+							}
+						}
+						else
+						{
+							triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
+							triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
+						}
 					}
 				}
 
@@ -70,6 +94,59 @@ std::vector<Primative> Stripify::Strip(const std::vector<unsigned int>& indexBuf
 						{
 							const Vertex* vertexToAdd = currentTriangle->vertices[(j + 2) % 3];
 							triangleStripPrimative.vertices.push_back(*vertexToAdd);
+
+							// HACK
+							Vertex& secondToLastVertex = triangleStripPrimative.vertices[triangleStripPrimative.vertices.size() - 2];
+							Vertex& thirdToLastVertex = triangleStripPrimative.vertices[triangleStripPrimative.vertices.size() - 3];
+							if (thirdToLastVertex != *currentTriangle->vertices[(j + 1) % 3] &&
+								thirdToLastVertex != *currentTriangle->vertices[(j + 3) % 3])
+							{
+								if (secondToLastVertex == *currentTriangle->vertices[(j + 1) % 3])
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
+								else if (secondToLastVertex == *currentTriangle->vertices[(j + 3) % 3])
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
+								else
+								{
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
+								}
+							}
+							else if (secondToLastVertex != *currentTriangle->vertices[(j + 1) % 3] &&
+									 secondToLastVertex != *currentTriangle->vertices[(j + 3) % 3])
+							{
+								if (thirdToLastVertex == *currentTriangle->vertices[(j + 1) % 3])
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
+								else if (thirdToLastVertex == *currentTriangle->vertices[(j + 3) % 3])
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
+								else
+								{
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
+									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
+								}
+							}
+
+							// If there is a next triangle
+							if (i + 1 < triangleStrip.size() && false)
+							{
+								AdjecentTriangle* nextTriangle = triangleStrip[i + 1];
+								// Check for a shared vertex between the previous and next triangles
+								for (int j = 0; j < 3; j++)
+								{
+									for (int k = 0; k < 3; k++)
+									{
+										if (previousTriangle->vertices[j] == nextTriangle->vertices[k])
+										{
+											// Make sure the second to last vertex is the shared vertex
+											Vertex& secondToLastVertex = triangleStripPrimative.vertices[triangleStripPrimative.vertices.size() - 2];
+											if (secondToLastVertex != *previousTriangle->vertices[j])
+											{
+												triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), thirdToLastVertex);
+												break;
+											}
+										}
+									}
+								}
+							}
 							break;
 						}
 					}
@@ -228,6 +305,8 @@ std::vector<AdjecentTriangle*> Stripify::getTriangleStrip(AdjecentTriangle& star
 
 void Stripify::extendTrinagleStrip(const AdjecentTriangle& startingTriangle, int startingEdge, std::vector<AdjecentTriangle*>& o_triangleStrip)
 {
+	const AdjecentTriangle* previousTriangle = nullptr;
+	bool hasOrderSwitched = false;
 	const AdjecentTriangle* currentTriangle = &startingTriangle;
 	AdjecentTriangle* adjecentTriangle1;
 	AdjecentTriangle* adjecentTriangle2;
@@ -278,6 +357,7 @@ void Stripify::extendTrinagleStrip(const AdjecentTriangle& startingTriangle, int
 					break;
 				}
 			}
+			previousTriangle = currentTriangle;
 			currentTriangle = o_triangleStrip.back();
 		}
 	} while (!(adjecentTriangle1 == nullptr && adjecentTriangle2 == nullptr));

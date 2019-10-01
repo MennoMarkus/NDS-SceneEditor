@@ -25,6 +25,8 @@ struct Vertex
 			   emissionColor[0] == other.emissionColor[0] && emissionColor[1] == other.emissionColor[1] && emissionColor[2] == other.emissionColor[2] &&
 			   alpha == other.alpha;
 	}
+
+	inline bool operator!=(const Vertex& other) const { return !(*this == other); }
 };
 
 struct Model
