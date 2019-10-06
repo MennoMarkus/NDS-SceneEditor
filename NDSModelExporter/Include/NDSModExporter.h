@@ -30,5 +30,5 @@ public:
 	static bool write(const std::string& filePath, const std::vector<Primative>& primatives);
 
 private:
-	static void getCommandsFromPrimative(const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx, const Vertex* io_lastVertex);
+	static void getCommandsFromPrimative(const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx);
 };

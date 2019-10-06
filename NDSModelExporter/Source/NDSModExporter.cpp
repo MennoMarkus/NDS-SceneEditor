@@ -42,11 +42,10 @@ bool NDSModExporter::write(const std::string& filePath, const std::vector<Primat
 
 	std::vector<PackedFIFOCommand> commandList;
 	int lastCommandIdx = 0;
-	const Vertex* lastVertex = nullptr;
 
 	// Pack all commands into one list
 	for (auto& primative : primatives)
-		getCommandsFromPrimative(primative, commandList, lastCommandIdx, lastVertex);
+		getCommandsFromPrimative(primative, commandList, lastCommandIdx);
 
 	// Pad the command list to fill up the last command
 	if (commandList.size() > 0 && lastCommandIdx != 3)
@@ -75,7 +74,7 @@ bool NDSModExporter::write(const std::string& filePath, const std::vector<Primat
 	return true;
 }
 
-void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx, const Vertex* io_lastVertex)
+void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx)
 {
 	PackedFIFOCommand currentPackedCommand = PackedFIFOCommand();
 	int currentCommandId = 0;
@@ -98,7 +97,7 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 		currentPackedCommand = PackedFIFOCommand();
 	}
 
-	const Vertex* previousVertex = io_lastVertex;
+	const Vertex* previousVertex = nullptr;
 	for (auto& currentVertex : primative.vertices)
 	{
 		// Set color command
@@ -128,8 +127,8 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 			}
 		}
 		// Set vertex command
-		if (previousVertex == nullptr || previousVertex->position[0] != currentVertex.position[0] || previousVertex->position[1] != currentVertex.position[1] || previousVertex->position[2] != currentVertex.position[2])
-		{
+		//if (previousVertex == nullptr || previousVertex->position[0] != currentVertex.position[0] || previousVertex->position[1] != currentVertex.position[1] || previousVertex->position[2] != currentVertex.position[2])
+		//{
 			currentPackedCommand.setVTX16Command(currentCommandId, currentVertex.position[0], currentVertex.position[1], currentVertex.position[2]);
 			// Create new command pack if the current is filled
 			currentCommandId++;
@@ -139,7 +138,7 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 				currentCommandId = 0;
 				currentPackedCommand = PackedFIFOCommand();
 			}
-		}
+		//}
 
 		// Set previous to compare to next
 		previousVertex = &currentVertex;
@@ -149,5 +148,4 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 	if (currentCommandId != 0)
 		o_commandList.push_back(currentPackedCommand);
 	io_lastCommandIdx = currentCommandId == 0 ? 3 : currentCommandId - 1;
-	io_lastVertex = previousVertex;
 }

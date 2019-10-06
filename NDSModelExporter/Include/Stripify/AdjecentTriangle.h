@@ -1,22 +1,36 @@
 #pragma once
 #include "Model.h"
 
-struct AdjecentTriangle
+class AdjecentTriangle
 {
+public:
 	// Stored in clockwise order
-	const Vertex* vertices[3];
-	// Stored in clockwise order
-	// Eg adjecentTriangles[0] is between vertex[0] and vertex[1]
-	AdjecentTriangle* adjecentTriangles[3] = { nullptr, nullptr, nullptr };
+	unsigned int vertexIdx[3];
+	bool isUsed = false;
 
-	bool isStripTriangle = false;
+private:
+	// Sorted by the amount of adjecent triangles
+	std::vector<AdjecentTriangle*> connectedTriangles;
 
-	AdjecentTriangle(const Vertex& vertex1, const Vertex& vertex2, const Vertex& vertex3)
+public:
+	AdjecentTriangle(unsigned int vertex1Idx, unsigned int vertex2Idx, unsigned int vertex3Idx)
 	{
-		vertices[0] = &vertex1;
-		vertices[1] = &vertex2;
-		vertices[2] = &vertex3;
+		vertexIdx[0] = vertex1Idx;
+		vertexIdx[1] = vertex2Idx;
+		vertexIdx[2] = vertex3Idx;
 	}
 
-	int getAdjecentTriangleCount() const { return (adjecentTriangles[0] == nullptr) + (adjecentTriangles[1] == nullptr) + (adjecentTriangles[2] == nullptr); }
+	// Helpers for adding/getting adjecent triangles. Making sure sorting is maintained.
+	int getAdjecentTriangleCount() const { return connectedTriangles.size(); }
+
+	AdjecentTriangle* getAdjecentTriangle(int idx) { return connectedTriangles[idx]; }
+
+	void addAdjecentTriangle(AdjecentTriangle& triangle)
+	{
+		// Sort triangles based on connectivity
+		auto it = std::lower_bound(connectedTriangles.begin(), connectedTriangles.end(), &triangle, 
+									[](AdjecentTriangle* a, AdjecentTriangle* b)
+									{ return a->getAdjecentTriangleCount() < b->getAdjecentTriangleCount();	});
+		connectedTriangles.insert(it, &triangle);
+	}
 };

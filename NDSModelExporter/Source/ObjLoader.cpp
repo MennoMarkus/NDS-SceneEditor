@@ -16,8 +16,8 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
 
-	std::string errorMessage;
-	bool success = tinyobj::LoadObj(&attributes, &shapes, &materials, &errorMessage, file.c_str(), inputDir.c_str());
+	std::string warningMessage, errorMessage;
+	bool success = tinyobj::LoadObj(&attributes, &shapes, &materials, &warningMessage, &errorMessage, file.c_str(), inputDir.c_str(), true, false);
 
 	// Check for errors
 	if (!errorMessage.empty() || !success)
@@ -25,6 +25,8 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 		std::cerr << errorMessage << std::endl;
 		return false;
 	}
+	if (!warningMessage.empty())
+		std::cout << warningMessage << std::endl;
 
 	// Add default material
 	materials.push_back(tinyobj::material_t());
@@ -152,6 +154,14 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 				model.maxBound[v] = std::max(vertices[0][v], model.maxBound[v]);
 				model.maxBound[v] = std::max(vertices[1][v], model.maxBound[v]);
 				model.maxBound[v] = std::max(vertices[2][v], model.maxBound[v]);
+
+				// Set vertex color if there is any
+				if (attributes.colors.size() > 3 * vertexIndex0 + v)
+					diffuseColor[0] = attributes.colors[3 * vertexIndex0 + v];
+				if (attributes.colors.size() > 3 * vertexIndex1 + v)
+					diffuseColor[1] = attributes.colors[3 * vertexIndex1 + v];
+				if (attributes.colors.size() > 3 * vertexIndex2 + v)
+					diffuseColor[2] = attributes.colors[3 * vertexIndex2 + v];
 			}
 
 			// --- Get normals

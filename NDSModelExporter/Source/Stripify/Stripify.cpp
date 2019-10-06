@@ -9,6 +9,7 @@ std::vector<Primative> Stripify::Strip(const std::vector<Vertex>& vertices)
 	std::vector<unsigned int> indexBuffer;
 	std::vector<Vertex> vertexBuffer;
 	createIndexBuffer(vertices, indexBuffer, vertexBuffer);
+	std::cout << "Indices count: " << indexBuffer.size() << " New vertex count: " << vertexBuffer.size() << " Old vertex count: " << vertices.size() << "\n";
 
 	return Strip(indexBuffer, vertexBuffer);
 }
@@ -16,149 +17,42 @@ std::vector<Primative> Stripify::Strip(const std::vector<Vertex>& vertices)
 std::vector<Primative> Stripify::Strip(const std::vector<unsigned int>& indexBuffer, const std::vector<Vertex>& vertexBuffer)
 {
 	std::vector<Primative> trianglesStripPrimatives;
+
+	// Create connectivity graph to map all triangle connections
+	std::vector<AdjecentTriangle> triangles = createConnectivityGraph(indexBuffer);
+	
 	Primative trianglesPrimative(PrimativeType::TRIANGLES);
-
-	// Connect triangles
-	std::vector<AdjecentTriangle> triangles;
-	createAdjecentTriangles(indexBuffer, vertexBuffer, triangles);
-
-	// Create all triangle strips
-	AdjecentTriangle* startingTriangle;
-	do
+	AdjecentTriangle* triangle = nullptr;
+	do 
 	{
-		// Determin the best triangle to start, and create a new triangle strip
-		startingTriangle = getBestStripStartingTriangle(triangles);
-		if (startingTriangle != nullptr)
+		// Get the best starting triangle for a new triangle strip
+		triangle = getBestStripTriangle(triangles);
+		if (triangle != nullptr)
 		{
-			std::vector<AdjecentTriangle*> triangleStrip = getTriangleStrip(*startingTriangle);
+			std::vector<Vertex> triangleStrip = getBestTriangleStrip(*triangle, vertexBuffer);
 
-			// If there is only 1 triangle, add it to the triangles primative
-			if (triangleStrip.size() == 1)
+			if (triangleStrip.size() == 3)
 			{
-				trianglesPrimative.vertices.push_back(*triangleStrip[0]->vertices[0]);
-				trianglesPrimative.vertices.push_back(*triangleStrip[0]->vertices[1]);
-				trianglesPrimative.vertices.push_back(*triangleStrip[0]->vertices[2]);
+				// Add the loose triangle to the triangles primative
+				triangle->isUsed = true;
+				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[0]]);
+				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[1]]);
+				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[2]]);
 			}
-			// Else create a new triangle strip primative
 			else
 			{
+				// Add the triangle strip to the list of primatives
 				Primative triangleStripPrimative(PrimativeType::TRIANGLE_STRIP);
-
-				// Add the initial triangle, making sure the first vertex is not part of the edge between the first and second triangle
-				AdjecentTriangle* firstTriangle = triangleStrip[0];
-				AdjecentTriangle* secondTriangle = triangleStrip[1];
-				for (int i = 0; i < 3; i++)
-				{
-					if (firstTriangle->adjecentTriangles[i] == secondTriangle)
-					{
-						triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 2) % 3]);
-
-						// Find the second vertex
-						if (triangleStrip.size() >= 3)
-						{
-							AdjecentTriangle* thirdTriangle = triangleStrip[2];
-							for (int j = 0; j < 3; j++)
-							{
-								if (thirdTriangle->vertices[j] == firstTriangle->vertices[(i + 3) % 3])
-								{
-									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
-									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
-									break;
-								}
-								else if (thirdTriangle->vertices[j] == firstTriangle->vertices[(i + 4) % 3])
-								{
-									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
-									triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
-									break;
-								}
-							}
-						}
-						else
-						{
-							triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 3) % 3]);
-							triangleStripPrimative.vertices.push_back(*firstTriangle->vertices[(i + 4) % 3]);
-						}
-					}
-				}
-
-				// Add all vertices
-				for (int i = 1; i < triangleStrip.size(); i++)
-				{
-					AdjecentTriangle* previousTriangle = triangleStrip[i - 1];
-					AdjecentTriangle* currentTriangle = triangleStrip[i];
-
-					// Find the edge between the previous and current triangle, and add the opposite vertex
-					for (int j = 0; j < 3; j++)
-					{
-						if (currentTriangle->adjecentTriangles[j] == previousTriangle)
-						{
-							const Vertex* vertexToAdd = currentTriangle->vertices[(j + 2) % 3];
-							triangleStripPrimative.vertices.push_back(*vertexToAdd);
-
-							// HACK
-							Vertex& secondToLastVertex = triangleStripPrimative.vertices[triangleStripPrimative.vertices.size() - 2];
-							Vertex& thirdToLastVertex = triangleStripPrimative.vertices[triangleStripPrimative.vertices.size() - 3];
-							if (thirdToLastVertex != *currentTriangle->vertices[(j + 1) % 3] &&
-								thirdToLastVertex != *currentTriangle->vertices[(j + 3) % 3])
-							{
-								if (secondToLastVertex == *currentTriangle->vertices[(j + 1) % 3])
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
-								else if (secondToLastVertex == *currentTriangle->vertices[(j + 3) % 3])
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
-								else
-								{
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
-								}
-							}
-							else if (secondToLastVertex != *currentTriangle->vertices[(j + 1) % 3] &&
-									 secondToLastVertex != *currentTriangle->vertices[(j + 3) % 3])
-							{
-								if (thirdToLastVertex == *currentTriangle->vertices[(j + 1) % 3])
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
-								else if (thirdToLastVertex == *currentTriangle->vertices[(j + 3) % 3])
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
-								else
-								{
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 1) % 3]);
-									triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), *currentTriangle->vertices[(j + 3) % 3]);
-								}
-							}
-
-							// If there is a next triangle
-							if (i + 1 < triangleStrip.size() && false)
-							{
-								AdjecentTriangle* nextTriangle = triangleStrip[i + 1];
-								// Check for a shared vertex between the previous and next triangles
-								for (int j = 0; j < 3; j++)
-								{
-									for (int k = 0; k < 3; k++)
-									{
-										if (previousTriangle->vertices[j] == nextTriangle->vertices[k])
-										{
-											// Make sure the second to last vertex is the shared vertex
-											Vertex& secondToLastVertex = triangleStripPrimative.vertices[triangleStripPrimative.vertices.size() - 2];
-											if (secondToLastVertex != *previousTriangle->vertices[j])
-											{
-												triangleStripPrimative.vertices.insert(triangleStripPrimative.vertices.begin() + (triangleStripPrimative.vertices.size() - 1), thirdToLastVertex);
-												break;
-											}
-										}
-									}
-								}
-							}
-							break;
-						}
-					}
-				}
-
+				triangleStripPrimative.vertices = triangleStrip;
 				trianglesStripPrimatives.push_back(triangleStripPrimative);
 			}
 		}
-	} while (startingTriangle != nullptr);
+	} while (triangle != nullptr);
 
+	// Add triangles primative to the list of primatives
 	if (trianglesPrimative.vertices.size() > 0)
 		trianglesStripPrimatives.push_back(trianglesPrimative);
+
 	return trianglesStripPrimatives;
 }
 
@@ -169,8 +63,9 @@ void Stripify::createIndexBuffer(const std::vector<Vertex>& vertices, std::vecto
 		const auto& bufferVertexIt = std::find(o_vertexBuffer.begin(), o_vertexBuffer.end(), vertex);
 		// If the vertex already excists, add it's index
 		if (bufferVertexIt != o_vertexBuffer.end())
+		{
 			o_indexBuffer.push_back(std::distance(o_vertexBuffer.begin(), bufferVertexIt));
-		// Else add the new vertex and it's index
+		} // Else add the new vertex and it's index
 		else
 		{
 			o_indexBuffer.push_back(o_vertexBuffer.size());
@@ -179,186 +74,167 @@ void Stripify::createIndexBuffer(const std::vector<Vertex>& vertices, std::vecto
 	}
 }
 
-void Stripify::createAdjecentTriangles(const std::vector<unsigned int>& indices, const std::vector<Vertex>& vertices, std::vector<AdjecentTriangle>& o_adjecentTriangles)
+std::vector<AdjecentTriangle> Stripify::createConnectivityGraph(const std::vector<unsigned int>& indexBuffer)
 {
-	o_adjecentTriangles.reserve(indices.size() / 3);
+	std::vector<AdjecentTriangle> triangles;
+	triangles.reserve(indexBuffer.size() / 3);
 
-	// Get all triangles
-	for (int i = 0; i < indices.size() / 3; i++)
+	for (int triangleIdx = 0; triangleIdx < indexBuffer.size() / 3; triangleIdx++)
 	{
-		unsigned int index0 = indices[3 * i + 0];
-		unsigned int index1 = indices[3 * i + 1];
-		unsigned int index2 = indices[3 * i + 2];
+		// Create new triangle
+		triangles.emplace_back(indexBuffer[3 * triangleIdx + 0],
+							   indexBuffer[3 * triangleIdx + 1],
+							   indexBuffer[3 * triangleIdx + 2]);
+		AdjecentTriangle& newTriangle = triangles.back();
 
-		// Add a new triangle
-		o_adjecentTriangles.emplace_back(vertices[index0], vertices[index1], vertices[index2]);
-		AdjecentTriangle& triangle = o_adjecentTriangles.back();
-
-		// Find adjecent triangles in all already create triangles
-		for (int j = 0; j < i - 1; j++)
+		// Find all connected triangles
+		for (int i = 0; i < triangles.size() - 1; i++)
 		{
-			AdjecentTriangle& otherTriangle = o_adjecentTriangles[j];
-			int triangleEdgeIdx = -1;
-			int otherTriangleEdgeIdx = -1;
-
-			// Connect triangles if they share an edge
-			if (hasSharedEdge(triangle, otherTriangle, triangleEdgeIdx, otherTriangleEdgeIdx))
+			AdjecentTriangle& triangle = triangles[i];
+			if (areTrianglesAdjecent(triangle, newTriangle))
 			{
-				triangle.adjecentTriangles[triangleEdgeIdx] = &otherTriangle;
-				otherTriangle.adjecentTriangles[otherTriangleEdgeIdx] = &triangle;
+				newTriangle.addAdjecentTriangle(triangle);
+				triangle.addAdjecentTriangle(newTriangle);
 			}
 		}
+
 	}
+
+	return triangles;
 }
 
-bool Stripify::hasSharedEdge(const AdjecentTriangle& tri1, const AdjecentTriangle& tri2, int& o_tri1EdgeIdx, int& o_tri2EdgeIdx)
+bool Stripify::areTrianglesAdjecent(const AdjecentTriangle& triangle1, const AdjecentTriangle& triangle2)
 {
 	for (int i = 0; i < 3; i++)
 	{
-		// Get tri1 edge
-		const Vertex* tri1Vertex1 = tri1.vertices[i];
-		const Vertex* tri1Vertex2 = tri1.vertices[(i + 1) % 3];
-
 		for (int j = 0; j < 3; j++)
 		{
-			// Get tri2 edge
-			const Vertex* tri2Vertex1 = tri2.vertices[j];
-			const Vertex* tri2Vertex2 = tri2.vertices[(j + 1) % 3];
-
-			// Compare edge vertices
-			if (tri1Vertex1 == tri2Vertex2 && tri1Vertex2 == tri2Vertex1)
-			{
-				o_tri1EdgeIdx = i;
-				o_tri2EdgeIdx = j;
+			// Check for shared edge. 
+			// tri1.A --- tr1.B == tri2.A --- tr2.B ||
+			// tri1.A --- tr1.B == tri2.B --- tr2.A
+			if ((triangle1.vertexIdx[i] == triangle2.vertexIdx[j] && triangle1.vertexIdx[(i + 1) % 3] == triangle2.vertexIdx[(j + 1) % 3]) ||
+				(triangle1.vertexIdx[i] == triangle2.vertexIdx[(j + 1) % 3] && triangle1.vertexIdx[(i + 1) % 3] == triangle2.vertexIdx[j]))
 				return true;
-			}
 		}
 	}
 	return false;
 }
 
-AdjecentTriangle* Stripify::getBestStripStartingTriangle(std::vector<AdjecentTriangle>& triangles)
+AdjecentTriangle* Stripify::getBestStripTriangle(std::vector<AdjecentTriangle>& triangles)
 {
-	AdjecentTriangle* leastAdjecentTriangles = nullptr;
-	int adjecentTrianglesCount = 4;
+	AdjecentTriangle* result = nullptr;
+	int minAdjecentTriangle = std::numeric_limits<int>::max();
 
-	// Get the triangle with the least amount of adjecent triangles
 	for (auto& triangle : triangles)
 	{
-		if (triangle.getAdjecentTriangleCount() < adjecentTrianglesCount && triangle.isStripTriangle == false)
+		// Find the triangle with the least connections, skipping used triangles
+		if (!triangle.isUsed && minAdjecentTriangle > triangle.getAdjecentTriangleCount())
 		{
-			leastAdjecentTriangles = &triangle;
-			adjecentTrianglesCount = triangle.getAdjecentTriangleCount();
-			if (adjecentTrianglesCount == 1)
+			minAdjecentTriangle = triangle.getAdjecentTriangleCount();
+			result = &triangle;
+
+			if (minAdjecentTriangle == 0)
 				break;
 		}
 	}
-
-	return leastAdjecentTriangles;
+	return result;
 }
 
-std::vector<AdjecentTriangle*> Stripify::getTriangleStrip(AdjecentTriangle& startingTriangle)
+std::vector<Vertex> Stripify::getBestTriangleStrip(AdjecentTriangle& startTriangle, const std::vector<Vertex>& vertexBuffer)
 {
-	std::vector<AdjecentTriangle*> triangleStrips[3];
+	std::vector<std::vector<AdjecentTriangle*>> triangleStrips;
+	std::vector<std::vector<unsigned int>> triangleStripIndices;
+	triangleStrips.reserve(6);
 
-	// Create a triangle strip for each edge of the starting triangle
-	for (int i = 0; i < 3; i++)
+	// Build all possible triangle strips
+	for (unsigned int vertexIdx = 0; vertexIdx < 3; vertexIdx++)
 	{
-		// Get the edge direction to extend backwards from
-		int backwardsEdge = i;
-		AdjecentTriangle* adjecentTriangle1 = startingTriangle.adjecentTriangles[(backwardsEdge + 1) % 3];
-		AdjecentTriangle* adjecentTriangle2 = startingTriangle.adjecentTriangles[(backwardsEdge + 2) % 3];
-		if (adjecentTriangle1 != nullptr && adjecentTriangle2 != nullptr)
+		for (int clockWiseOrder = 0; clockWiseOrder < 2; clockWiseOrder++)
 		{
-			// Pick the triangle with the least amount of adjecent triagles
-			if (adjecentTriangle1->getAdjecentTriangleCount() < adjecentTriangle2->getAdjecentTriangleCount())
-				backwardsEdge = (backwardsEdge + 1) % 3;
-			else
-				backwardsEdge = (backwardsEdge + 2) % 3;
-		}
-		else if (adjecentTriangle1 != nullptr)
-			backwardsEdge = (backwardsEdge + 1) % 3;
-		else if (adjecentTriangle2 != nullptr)
-			backwardsEdge = (backwardsEdge + 2) % 3;
+			unsigned int firstVertexIdx = startTriangle.vertexIdx[vertexIdx];
+			unsigned int secondVertexIdx = startTriangle.vertexIdx[(vertexIdx + 1 + clockWiseOrder) % 3];
+			unsigned int thirdVertexIdx = startTriangle.vertexIdx[(vertexIdx + 2 - clockWiseOrder) % 3];
+			std::vector<AdjecentTriangle*> triangles = { &startTriangle };
+			std::vector<unsigned int> indices = { firstVertexIdx, secondVertexIdx, thirdVertexIdx };
 
-		triangleStrips[i].push_back(&startingTriangle);
-		extendTrinagleStrip(startingTriangle, i, triangleStrips[i]); // Extend forwards
-		std::reverse(triangleStrips[i].begin(), triangleStrips[i].end());
-		extendTrinagleStrip(startingTriangle, backwardsEdge, triangleStrips[i]); // Extend backwards
+			// Extend forwards
+			extendTriangleStrip(startTriangle, secondVertexIdx, thirdVertexIdx, triangles, indices);
+
+			std::reverse(triangles.begin(), triangles.end());
+			std::reverse(indices.begin(), indices.end());
+			secondVertexIdx = firstVertexIdx;
+			thirdVertexIdx = secondVertexIdx;
+			
+			// Extend backwards
+			extendTriangleStrip(startTriangle, secondVertexIdx, thirdVertexIdx, triangles, indices);
+			triangleStrips.push_back(triangles);
+			triangleStripIndices.push_back(indices);
+		}
 	}
 
-	// Pick the largest triangle strip
-	int triangleStripsSize[3] = { triangleStrips[0].size(), triangleStrips[1].size(), triangleStrips[2].size() };
-	int longestSize = std::max(triangleStripsSize[0], std::max(triangleStripsSize[1], triangleStripsSize[2]));
+	// Find the largest triangle strip for this starting triangle
+	int largestStripIdx = 0;
+	size_t maxStripLength = 0;
+	for (int i = 0; i < 6; i++)
+	{
+		if (maxStripLength < triangleStrips[i].size())
+		{
+			maxStripLength = triangleStrips[i].size();
+			largestStripIdx = i;
+		}
+	}
 
-	std::vector<AdjecentTriangle*> returnStrip;
-	if      (triangleStripsSize[0] == longestSize) returnStrip = triangleStrips[0];
-	else if (triangleStripsSize[1] == longestSize) returnStrip = triangleStrips[1];
-	else                                           returnStrip = triangleStrips[2];
+	// Set triangles as used
+	for (auto& triangle : triangleStrips[largestStripIdx])
+		triangle->isUsed = true;
 
-	// Mark strip triangles as part of this strip
-	for (auto& triangle : returnStrip)
-		triangle->isStripTriangle = true;
+	// Get strip vertices
+	std::vector<Vertex> result;
+	result.reserve(triangleStripIndices[largestStripIdx].size());
+	for (auto& index : triangleStripIndices[largestStripIdx])
+		result.push_back(vertexBuffer[index]);
 
-	return returnStrip;
+	return result;
 }
 
-void Stripify::extendTrinagleStrip(const AdjecentTriangle& startingTriangle, int startingEdge, std::vector<AdjecentTriangle*>& o_triangleStrip)
+void Stripify::extendTriangleStrip(AdjecentTriangle& startTriangle, int firstVertex, int secondVertex, std::vector<AdjecentTriangle*>& o_triangles, std::vector<unsigned int>& o_indices)
 {
-	const AdjecentTriangle* previousTriangle = nullptr;
-	bool hasOrderSwitched = false;
-	const AdjecentTriangle* currentTriangle = &startingTriangle;
-	AdjecentTriangle* adjecentTriangle1;
-	AdjecentTriangle* adjecentTriangle2;
-	int fromEdgeIdx = startingEdge;
+	unsigned int previousVertex = firstVertex;
+	unsigned int currentVertex = secondVertex;
+	AdjecentTriangle* currentTriangle = &startTriangle;
 
-	do
+	while (currentTriangle != nullptr)
 	{
-		// Pick the adjecent triangles as new candidates for the strip
-		adjecentTriangle1 = currentTriangle->adjecentTriangles[(fromEdgeIdx + 1) % 3];
-		adjecentTriangle2 = currentTriangle->adjecentTriangles[(fromEdgeIdx + 2) % 3];
+		AdjecentTriangle* nextTriangle = nullptr;
 
-		// Remove the candidate triangle if it has already been visted
-		if (adjecentTriangle1 != nullptr)
+		// Find an adjecent triangle to connect to
+		for (int adjecentTriangleIdx = 0; adjecentTriangleIdx < currentTriangle->getAdjecentTriangleCount(); adjecentTriangleIdx++)
 		{
-			if (std::find(o_triangleStrip.begin(), o_triangleStrip.end(), adjecentTriangle1) != o_triangleStrip.end() ||
-				adjecentTriangle1->isStripTriangle)
-				adjecentTriangle1 = nullptr;
-		}
-		if (adjecentTriangle2 != nullptr)
-		{
-			if (std::find(o_triangleStrip.begin(), o_triangleStrip.end(), adjecentTriangle2) != o_triangleStrip.end() ||
-				adjecentTriangle2->isStripTriangle)
-				adjecentTriangle2 = nullptr;
-		}
+			AdjecentTriangle* adjecentTriangle = currentTriangle->getAdjecentTriangle(adjecentTriangleIdx);
 
-		// Add a candidate triangle to the strip
-		if (adjecentTriangle1 != nullptr && adjecentTriangle2 != nullptr)
-		{
-			// Pick the triangle with the least amount of adjecent triagles
-			if (adjecentTriangle1->getAdjecentTriangleCount() < adjecentTriangle2->getAdjecentTriangleCount())
-				o_triangleStrip.push_back(adjecentTriangle1);
-			else
-				o_triangleStrip.push_back(adjecentTriangle2);
-		}
-		else if (adjecentTriangle1 != nullptr)
-			o_triangleStrip.push_back(adjecentTriangle1);
-		else if (adjecentTriangle2 != nullptr)
-			o_triangleStrip.push_back(adjecentTriangle2);
-
-		if (o_triangleStrip.size() > 0)
-		{
-			// Find the current triangle in the new adjecent triangles edges to get the new edge idx
-			for (int i = 0; i < 3; i++)
+			// Add this triangle if we can connect and it's not already part of the strip
+			if (std::find(o_triangles.begin(), o_triangles.end(), adjecentTriangle) == o_triangles.end())
 			{
-				if (o_triangleStrip.back()->adjecentTriangles[i] == currentTriangle)
+				for (int i = 0; i < 3; i++)
 				{
-					fromEdgeIdx = i;
-					break;
+					if (previousVertex == adjecentTriangle->vertexIdx[i] && currentVertex == adjecentTriangle->vertexIdx[(i + 1) % 3] ||
+						previousVertex == adjecentTriangle->vertexIdx[(i + 1) % 3] && currentVertex == adjecentTriangle->vertexIdx[i])
+					{
+						unsigned int newVertex = adjecentTriangle->vertexIdx[(i + 2) % 3];
+						o_triangles.push_back(adjecentTriangle);
+						o_indices.push_back(newVertex);
+
+						// Set the new current vertices
+						previousVertex = currentVertex;
+						currentVertex = newVertex;
+						nextTriangle = adjecentTriangle;
+						break;
+					}
 				}
 			}
-			previousTriangle = currentTriangle;
-			currentTriangle = o_triangleStrip.back();
 		}
-	} while (!(adjecentTriangle1 == nullptr && adjecentTriangle2 == nullptr));
+
+		// Move on to the next triangle
+		currentTriangle = nextTriangle;
+	}
 }
