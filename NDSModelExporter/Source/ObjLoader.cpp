@@ -52,7 +52,7 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 			}
 
 			// --- Get material
-			float diffuseColor[3];
+			float diffuseColor[3][3];
 			float ambientColor[3];
 			float specularColor[3];
 			float shininess;
@@ -60,9 +60,15 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 			float alpha;
 			if (!isDefaultMaterial)
 			{
-				diffuseColor[0] = materials[materialId].diffuse[0];
-				diffuseColor[1] = materials[materialId].diffuse[1];
-				diffuseColor[2] = materials[materialId].diffuse[2];
+				diffuseColor[0][0] = materials[materialId].diffuse[0];
+				diffuseColor[1][0] = materials[materialId].diffuse[1];
+				diffuseColor[2][0] = materials[materialId].diffuse[2];
+				diffuseColor[0][1] = materials[materialId].diffuse[0];
+				diffuseColor[1][1] = materials[materialId].diffuse[1];
+				diffuseColor[2][1] = materials[materialId].diffuse[2];
+				diffuseColor[0][2] = materials[materialId].diffuse[0];
+				diffuseColor[1][2] = materials[materialId].diffuse[1];
+				diffuseColor[2][2] = materials[materialId].diffuse[2];
 
 				ambientColor[0] = materials[materialId].ambient[0];
 				ambientColor[1] = materials[materialId].ambient[1];
@@ -82,9 +88,15 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 			}
 			else
 			{
-				diffuseColor[0] = -1.f;
-				diffuseColor[1] = -1.f;
-				diffuseColor[2] = -1.f;
+				diffuseColor[0][0] = -1.f;
+				diffuseColor[1][0] = -1.f;
+				diffuseColor[2][0] = -1.f;
+				diffuseColor[0][1] = -1.f;
+				diffuseColor[1][1] = -1.f;
+				diffuseColor[2][1] = -1.f;
+				diffuseColor[0][2] = -1.f;
+				diffuseColor[1][2] = -1.f;
+				diffuseColor[2][2] = -1.f;
 
 				ambientColor[0] = -1.f;
 				ambientColor[1] = -1.f;
@@ -157,11 +169,11 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 
 				// Set vertex color if there is any
 				if (attributes.colors.size() > 3 * vertexIndex0 + v)
-					diffuseColor[0] = attributes.colors[3 * vertexIndex0 + v];
+					diffuseColor[0][v] = attributes.colors[3 * vertexIndex0 + v];
 				if (attributes.colors.size() > 3 * vertexIndex1 + v)
-					diffuseColor[1] = attributes.colors[3 * vertexIndex1 + v];
+					diffuseColor[1][v] = attributes.colors[3 * vertexIndex1 + v];
 				if (attributes.colors.size() > 3 * vertexIndex2 + v)
-					diffuseColor[2] = attributes.colors[3 * vertexIndex2 + v];
+					diffuseColor[2][v] = attributes.colors[3 * vertexIndex2 + v];
 			}
 
 			// --- Get normals
@@ -199,7 +211,7 @@ bool ObjLoader::load(const std::string& file, std::vector<Model>& o_models)
 				std::copy(std::begin(vertices[i]), std::end(vertices[i]), std::begin(newVertex.position));
 				std::copy(std::begin(normals[i]), std::end(normals[i]), std::begin(newVertex.normal));
 				std::copy(std::begin(textureCoordinates[i]), std::end(textureCoordinates[i]), std::begin(newVertex.textureCoordinate));
-				std::copy(std::begin(diffuseColor), std::end(diffuseColor), std::begin(newVertex.diffuseColor));
+				std::copy(std::begin(diffuseColor[i]), std::end(diffuseColor[i]), std::begin(newVertex.diffuseColor));
 				std::copy(std::begin(ambientColor), std::end(ambientColor), std::begin(newVertex.ambientColor));
 				std::copy(std::begin(specularColor), std::end(specularColor), std::begin(newVertex.specularColor));
 				newVertex.shininess = shininess;
