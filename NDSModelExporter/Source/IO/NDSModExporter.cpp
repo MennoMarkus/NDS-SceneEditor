@@ -1,4 +1,4 @@
-#include "NDSModExporter.h"
+#include "IO/NDSModExporter.h"
 #include <fstream>
 #include <iostream>
 #include <cassert>
@@ -25,9 +25,15 @@ void PackedFIFOCommand::setNormalCommand(int commandId, float x, float y, float 
 
 void PackedFIFOCommand::setVTX16Command(int commandId, float x, float y, float z)
 {
-	uint32_t vertexXY = (((short)((x) * (1 << 12))) << 16) | (((short)((y) * (1 << 12))) & 0xFFFF);
-	uint32_t vertexZW = ((short)((z) * (1 << 12)));
+	uint32_t vertexXY = (((short)((y) * (1 << 12)) & 0xFFFF) << 16) | ((short)((x) * (1 << 12)) & 0xFFFF);
+	uint32_t vertexZW = ((short)((z) * (1 << 12)) & 0xFFFF);
 	setCommand(commandId, FIFO_COMMAND::VTX16, { vertexXY, vertexZW });
+}
+
+void PackedFIFOCommand::setVTX10Command(int commandId, float x, float y, float z)
+{
+	uint32_t vertexXYZ = (((short)(z * (1 << 6)) & 0x3FF) << 20) | (((short)(y * (1 << 6)) & 0x3FF) << 10) | ((short)(x * (1 << 6)) & 0x3FF);
+	setCommand(commandId, FIFO_COMMAND::VTX10, { vertexXYZ });
 }
 
 void PackedFIFOCommand::setVTXSCommand(int commandId, PrimativeType type)
@@ -35,9 +41,9 @@ void PackedFIFOCommand::setVTXSCommand(int commandId, PrimativeType type)
 	setCommand(commandId, FIFO_COMMAND::VTXS, { (uint32_t)type });
 }
 
-bool NDSModExporter::write(const std::string& filePath, const std::vector<Primative>& primatives)
+bool NDSModExporter::write(const Settings& settings, const std::vector<Primative>& primatives)
 {
-	std::ofstream file(filePath, std::ios::binary);
+	std::ofstream file(settings.outputFile, std::ios::binary);
 	assert(file);
 
 	std::vector<PackedFIFOCommand> commandList;
@@ -45,7 +51,7 @@ bool NDSModExporter::write(const std::string& filePath, const std::vector<Primat
 
 	// Pack all commands into one list
 	for (auto& primative : primatives)
-		getCommandsFromPrimative(primative, commandList, lastCommandIdx);
+		getCommandsFromPrimative(settings, primative, commandList, lastCommandIdx);
 
 	// Pad the command list to fill up the last command
 	if (commandList.size() > 0 && lastCommandIdx != 3)
@@ -70,11 +76,13 @@ bool NDSModExporter::write(const std::string& filePath, const std::vector<Primat
 	file.write((char*)& buffer[0], buffer.size() * sizeof(uint32_t));
 
 	file.close();
-	std::cout << "Command Count: " << commandList.size() << " Total Size: " << buffer.size() * sizeof(uint32_t) << std::endl;
+
+	if (settings.printDebugInfo)
+		std::cout << "Command Count: " << commandList.size() << " Total Size: " << (buffer.size() * sizeof(uint32_t)) / 1000.f << "kb" << std::endl;
 	return true;
 }
 
-void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx)
+void NDSModExporter::getCommandsFromPrimative(const Settings& settings, const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx)
 {
 	PackedFIFOCommand currentPackedCommand = PackedFIFOCommand();
 	int currentCommandId = 0;
@@ -100,9 +108,12 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 	const Vertex* previousVertex = nullptr;
 	for (auto& currentVertex : primative.vertices)
 	{
+		bool materialChanged = false;
+
 		// Set color command
 		if (previousVertex == nullptr || previousVertex->diffuseColor[0] != currentVertex.diffuseColor[0] || previousVertex->diffuseColor[1] != currentVertex.diffuseColor[1] || previousVertex->diffuseColor[2] != currentVertex.diffuseColor[2])
 		{
+			materialChanged = true;
 			currentPackedCommand.setColorCommand(currentCommandId, currentVertex.diffuseColor[0], currentVertex.diffuseColor[1], currentVertex.diffuseColor[2]);
 			// Create new command pack if the current is filled
 			currentCommandId++;
@@ -114,31 +125,37 @@ void NDSModExporter::getCommandsFromPrimative(const Primative& primative, std::v
 			}
 		}
 		// Set normal command
-		if (previousVertex == nullptr || previousVertex->normal[0] != currentVertex.normal[0] || previousVertex->normal[1] != currentVertex.normal[1] || previousVertex->normal[2] != currentVertex.normal[2])
+		if (settings.includeNormals)
 		{
-			//currentPackedCommand.setNormalCommand(currentCommandId, currentVertex.normal[0], currentVertex.normal[1], currentVertex.normal[2]);
-			// Create new command pack if the current is filled
-			//currentCommandId++;
-			if (currentCommandId >= 4)
+			if (previousVertex == nullptr || materialChanged ||
+				previousVertex->normal[0] != currentVertex.normal[0] || previousVertex->normal[1] != currentVertex.normal[1] || previousVertex->normal[2] != currentVertex.normal[2])
 			{
-				o_commandList.push_back(currentPackedCommand);
-				currentCommandId = 0;
-				currentPackedCommand = PackedFIFOCommand();
+				currentPackedCommand.setNormalCommand(currentCommandId, currentVertex.normal[0], currentVertex.normal[1], currentVertex.normal[2]);
+				// Create new command pack if the current is filled
+				currentCommandId++;
+				if (currentCommandId >= 4)
+				{
+					o_commandList.push_back(currentPackedCommand);
+					currentCommandId = 0;
+					currentPackedCommand = PackedFIFOCommand();
+				}
 			}
 		}
+
 		// Set vertex command
-		//if (previousVertex == nullptr || previousVertex->position[0] != currentVertex.position[0] || previousVertex->position[1] != currentVertex.position[1] || previousVertex->position[2] != currentVertex.position[2])
-		//{
+		if (settings.highPrecision)
 			currentPackedCommand.setVTX16Command(currentCommandId, currentVertex.position[0], currentVertex.position[1], currentVertex.position[2]);
-			// Create new command pack if the current is filled
-			currentCommandId++;
-			if (currentCommandId >= 4)
-			{
-				o_commandList.push_back(currentPackedCommand);
-				currentCommandId = 0;
-				currentPackedCommand = PackedFIFOCommand();
-			}
-		//}
+		else
+			currentPackedCommand.setVTX10Command(currentCommandId, currentVertex.position[0], currentVertex.position[1], currentVertex.position[2]);
+
+		// Create new command pack if the current is filled
+		currentCommandId++;
+		if (currentCommandId >= 4)
+		{
+			o_commandList.push_back(currentPackedCommand);
+			currentCommandId = 0;
+			currentPackedCommand = PackedFIFOCommand();
+		}
 
 		// Set previous to compare to next
 		previousVertex = &currentVertex;

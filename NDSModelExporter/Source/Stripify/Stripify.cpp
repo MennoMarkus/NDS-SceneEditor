@@ -9,7 +9,6 @@ std::vector<Primative> Stripify::Strip(const std::vector<Vertex>& vertices)
 	std::vector<unsigned int> indexBuffer;
 	std::vector<Vertex> vertexBuffer;
 	createIndexBuffer(vertices, indexBuffer, vertexBuffer);
-	std::cout << "Indices count: " << indexBuffer.size() << " New vertex count: " << vertexBuffer.size() << " Old vertex count: " << vertices.size() << "\n";
 
 	return Strip(indexBuffer, vertexBuffer);
 }
