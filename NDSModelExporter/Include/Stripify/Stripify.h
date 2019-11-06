@@ -22,7 +22,7 @@ private:
 	static AdjecentTriangle* getBestStripTriangle(std::vector<AdjecentTriangle>& triangles);
 
 	// Create the best triangle strip for a starting triangle
-	static std::vector<Vertex> getBestTriangleStrip(AdjecentTriangle& startTriangle, const std::vector<Vertex>& vertexBuffer);
+	static void getBestTriangleStrip(AdjecentTriangle& startTriangle, const std::vector<Vertex>& vertexBuffer, std::vector<Vertex>& o_bestStrip, bool& o_isClockWiseOrder);
 	// Builds a triangle strip from the start triangle, in one direction. The start triangle is not added to the output.
 	static void extendTriangleStrip(AdjecentTriangle& startTriangle, int firstVertex, int secondVertex, std::vector<AdjecentTriangle*>& o_triangles, std::vector<unsigned int>& o_indices);
 };

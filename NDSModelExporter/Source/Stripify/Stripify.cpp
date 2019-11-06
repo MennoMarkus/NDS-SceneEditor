@@ -21,6 +21,7 @@ std::vector<Primative> Stripify::Strip(const std::vector<unsigned int>& indexBuf
 	std::vector<AdjecentTriangle> triangles = createConnectivityGraph(indexBuffer);
 	
 	Primative trianglesPrimative(PrimativeType::TRIANGLES);
+	trianglesPrimative.isClockWiseOrder = false;
 	AdjecentTriangle* triangle = nullptr;
 	do 
 	{
@@ -28,20 +29,23 @@ std::vector<Primative> Stripify::Strip(const std::vector<unsigned int>& indexBuf
 		triangle = getBestStripTriangle(triangles);
 		if (triangle != nullptr)
 		{
-			std::vector<Vertex> triangleStrip = getBestTriangleStrip(*triangle, vertexBuffer);
+			bool isClockWiseOrder;
+			std::vector<Vertex> triangleStrip;
+			getBestTriangleStrip(*triangle, vertexBuffer, triangleStrip, isClockWiseOrder);
 
 			if (triangleStrip.size() == 3)
 			{
 				// Add the loose triangle to the triangles primative
 				triangle->isUsed = true;
-				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[0]]);
-				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[1]]);
 				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[2]]);
+				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[1]]);
+				trianglesPrimative.vertices.push_back(vertexBuffer[triangle->vertexIdx[0]]);
 			}
 			else
 			{
 				// Add the triangle strip to the list of primatives
 				Primative triangleStripPrimative(PrimativeType::TRIANGLE_STRIP);
+				triangleStripPrimative.isClockWiseOrder = isClockWiseOrder;
 				triangleStripPrimative.vertices = triangleStrip;
 				trianglesStripPrimatives.push_back(triangleStripPrimative);
 			}
@@ -139,7 +143,7 @@ AdjecentTriangle* Stripify::getBestStripTriangle(std::vector<AdjecentTriangle>& 
 	return result;
 }
 
-std::vector<Vertex> Stripify::getBestTriangleStrip(AdjecentTriangle& startTriangle, const std::vector<Vertex>& vertexBuffer)
+void Stripify::getBestTriangleStrip(AdjecentTriangle& startTriangle, const std::vector<Vertex>& vertexBuffer, std::vector<Vertex>& o_bestStrip, bool& o_isClockWiseOrder)
 {
 	std::vector<std::vector<AdjecentTriangle*>> triangleStrips;
 	std::vector<std::vector<unsigned int>> triangleStripIndices;
@@ -180,6 +184,12 @@ std::vector<Vertex> Stripify::getBestTriangleStrip(AdjecentTriangle& startTriang
 		{
 			maxStripLength = triangleStrips[i].size();
 			largestStripIdx = i;
+
+			// Maintain culling side
+			if ((i % 2) != (maxStripLength % 2))
+				o_isClockWiseOrder = false;
+			else
+				o_isClockWiseOrder = true;
 		}
 	}
 
@@ -188,12 +198,9 @@ std::vector<Vertex> Stripify::getBestTriangleStrip(AdjecentTriangle& startTriang
 		triangle->isUsed = true;
 
 	// Get strip vertices
-	std::vector<Vertex> result;
-	result.reserve(triangleStripIndices[largestStripIdx].size());
+	o_bestStrip.reserve(triangleStripIndices[largestStripIdx].size());
 	for (auto& index : triangleStripIndices[largestStripIdx])
-		result.push_back(vertexBuffer[index]);
-
-	return result;
+		o_bestStrip.push_back(vertexBuffer[index]);
 }
 
 void Stripify::extendTriangleStrip(AdjecentTriangle& startTriangle, int firstVertex, int secondVertex, std::vector<AdjecentTriangle*>& o_triangles, std::vector<unsigned int>& o_indices)
@@ -212,12 +219,12 @@ void Stripify::extendTriangleStrip(AdjecentTriangle& startTriangle, int firstVer
 			AdjecentTriangle* adjecentTriangle = currentTriangle->getAdjecentTriangle(adjecentTriangleIdx);
 
 			// Add this triangle if we can connect and it's not already part of the strip
-			if (std::find(o_triangles.begin(), o_triangles.end(), adjecentTriangle) == o_triangles.end())
+			if (!adjecentTriangle->isUsed && std::find(o_triangles.begin(), o_triangles.end(), adjecentTriangle) == o_triangles.end())
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					if (previousVertex == adjecentTriangle->vertexIdx[i] && currentVertex == adjecentTriangle->vertexIdx[(i + 1) % 3] ||
-						previousVertex == adjecentTriangle->vertexIdx[(i + 1) % 3] && currentVertex == adjecentTriangle->vertexIdx[i])
+					if ((previousVertex == adjecentTriangle->vertexIdx[i] && currentVertex == adjecentTriangle->vertexIdx[(i + 1) % 3]) ||
+						(previousVertex == adjecentTriangle->vertexIdx[(i + 1) % 3] && currentVertex == adjecentTriangle->vertexIdx[i]))
 					{
 						unsigned int newVertex = adjecentTriangle->vertexIdx[(i + 2) % 3];
 						o_triangles.push_back(adjecentTriangle);

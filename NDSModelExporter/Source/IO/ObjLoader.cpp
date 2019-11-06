@@ -35,6 +35,7 @@ bool ObjLoader::load(const Settings& settings, std::vector<Model>& o_models)
 	for (int s = 0; s < shapes.size(); s++)
 	{
 		Model model;
+		model.name = shapes[s].name;
 
 		for (int f = 0; f < shapes[s].mesh.indices.size() / 3; f++)
 		{
@@ -62,9 +63,9 @@ bool ObjLoader::load(const Settings& settings, std::vector<Model>& o_models)
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					diffuseColor[0][i] = materials[materialId].diffuse[0];
-					diffuseColor[1][i] = materials[materialId].diffuse[1];
-					diffuseColor[2][i] = materials[materialId].diffuse[2];
+					diffuseColor[i][0] = materials[materialId].diffuse[0];
+					diffuseColor[i][1] = materials[materialId].diffuse[1];
+					diffuseColor[i][2] = materials[materialId].diffuse[2];
 				}
 
 				ambientColor[0] = materials[materialId].ambient[0];

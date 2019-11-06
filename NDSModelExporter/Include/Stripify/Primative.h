@@ -10,6 +10,7 @@ enum class PrimativeType
 struct Primative
 {
 	PrimativeType type;
+	bool isClockWiseOrder;
 	std::vector<Vertex> vertices;
 
 	Primative(PrimativeType type) : type(type) {}

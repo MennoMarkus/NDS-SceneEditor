@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 
 struct Vertex
 {
@@ -31,6 +32,7 @@ struct Vertex
 
 struct Model
 {
+	std::string name;
 	float minBound[3];
 	float maxBound[3];
 	std::vector<Vertex> vertexBuffer;

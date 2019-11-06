@@ -36,36 +36,27 @@ void PackedFIFOCommand::setVTX10Command(int commandId, float x, float y, float z
 	setCommand(commandId, FIFO_COMMAND::VTX10, { vertexXYZ });
 }
 
+void PackedFIFOCommand::setPOLYGON_ATTRCommand(int commandId, POLYGON_ATTR_FORMAT format, unsigned int alpha, unsigned int polygonId)
+{
+	setCommand(commandId, FIFO_COMMAND::POLYGON_ATTR, { ((unsigned int)format | (alpha << 16) | (polygonId << 24)) });
+}
+
 void PackedFIFOCommand::setVTXSCommand(int commandId, PrimativeType type)
 {
 	setCommand(commandId, FIFO_COMMAND::VTXS, { (uint32_t)type });
 }
 
-bool NDSModExporter::write(const Settings& settings, const std::vector<Primative>& primatives)
+bool NDSModExporter::write(const Settings& settings, const std::vector<PackedFIFOCommand>& commandList)
 {
 	std::ofstream file(settings.outputFile, std::ios::binary);
 	assert(file);
-
-	std::vector<PackedFIFOCommand> commandList;
-	int lastCommandIdx = 0;
-
-	// Pack all commands into one list
-	for (auto& primative : primatives)
-		getCommandsFromPrimative(settings, primative, commandList, lastCommandIdx);
-
-	// Pad the command list to fill up the last command
-	if (commandList.size() > 0 && lastCommandIdx != 3)
-	{
-		for (int i = lastCommandIdx + 1; i < 4; i++)
-			commandList.back().setNOPCommand(i);
-	}
 
 	// Write data
 	std::vector<uint32_t> buffer;
 	for (auto& packedCommand : commandList)
 	{
 		uint32_t commands = ((uint32_t)packedCommand.commands[3] << 24) | ((uint32_t)packedCommand.commands[2] << 16) |
-			((uint32_t)packedCommand.commands[1] << 8) | ((uint32_t)packedCommand.commands[0]);
+			                ((uint32_t)packedCommand.commands[1] << 8) | ((uint32_t)packedCommand.commands[0]);
 		buffer.push_back(commands);
 		buffer.insert(buffer.end(), packedCommand.commandParameters[0].begin(), packedCommand.commandParameters[0].end());
 		buffer.insert(buffer.end(), packedCommand.commandParameters[1].begin(), packedCommand.commandParameters[1].end());
@@ -82,16 +73,52 @@ bool NDSModExporter::write(const Settings& settings, const std::vector<Primative
 	return true;
 }
 
+std::vector<PackedFIFOCommand> NDSModExporter::getCommandList(const Settings& settings, const std::vector<Primative>& primatives)
+{
+	std::vector<PackedFIFOCommand> commandList;
+	int lastCommandIdx = 0;
+
+	// Pack all commands into one list
+	for (auto& primative : primatives)
+		getCommandsFromPrimative(settings, primative, commandList, lastCommandIdx);
+
+	// Pad the command list to fill up the last command
+	if (commandList.size() > 0 && lastCommandIdx != 3)
+	{
+		for (int i = lastCommandIdx + 1; i < 4; i++)
+			commandList.back().setNOPCommand(i);
+	}
+
+	return commandList;
+}
+
 void NDSModExporter::getCommandsFromPrimative(const Settings& settings, const Primative& primative, std::vector<PackedFIFOCommand>& o_commandList, int& io_lastCommandIdx)
 {
 	PackedFIFOCommand currentPackedCommand = PackedFIFOCommand();
 	int currentCommandId = 0;
+
+	// Generate random color
+	float debugColor[3] = { static_cast <float>(rand()) / static_cast <float>(RAND_MAX),
+							static_cast <float>(rand()) / static_cast <float>(RAND_MAX),
+							static_cast <float>(rand()) / static_cast <float>(RAND_MAX) };
 
 	// Add to the last packed command if there is still space
 	if (o_commandList.size() > 0 && io_lastCommandIdx != 3)
 	{
 		currentPackedCommand = o_commandList.back();
 		currentCommandId = io_lastCommandIdx + 1;
+	}
+
+	// Set primative polygon settings
+	unsigned int format = primative.isClockWiseOrder ? (unsigned int)POLYGON_ATTR_FORMAT::POLY_CULL_BACK : (unsigned int)POLYGON_ATTR_FORMAT::POLY_CULL_FRONT;
+	currentPackedCommand.setPOLYGON_ATTRCommand(currentCommandId, (POLYGON_ATTR_FORMAT)format, 31, 0);
+	// Create new command pack if the current is filled
+	currentCommandId++;
+	if (currentCommandId >= 4)
+	{
+		o_commandList.push_back(currentPackedCommand);
+		currentCommandId = 0;
+		currentPackedCommand = PackedFIFOCommand();
 	}
 
 	// Start primate
@@ -111,10 +138,13 @@ void NDSModExporter::getCommandsFromPrimative(const Settings& settings, const Pr
 		bool materialChanged = false;
 
 		// Set color command
-		if (previousVertex == nullptr || previousVertex->diffuseColor[0] != currentVertex.diffuseColor[0] || previousVertex->diffuseColor[1] != currentVertex.diffuseColor[1] || previousVertex->diffuseColor[2] != currentVertex.diffuseColor[2])
+		if (settings.debugColorPrimatives || previousVertex == nullptr || previousVertex->diffuseColor[0] != currentVertex.diffuseColor[0] || previousVertex->diffuseColor[1] != currentVertex.diffuseColor[1] || previousVertex->diffuseColor[2] != currentVertex.diffuseColor[2])
 		{
 			materialChanged = true;
-			currentPackedCommand.setColorCommand(currentCommandId, currentVertex.diffuseColor[0], currentVertex.diffuseColor[1], currentVertex.diffuseColor[2]);
+			if (settings.debugColorPrimatives)
+				currentPackedCommand.setColorCommand(currentCommandId, debugColor[0], debugColor[1], debugColor[2]);
+			else
+				currentPackedCommand.setColorCommand(currentCommandId, currentVertex.diffuseColor[0], currentVertex.diffuseColor[1], currentVertex.diffuseColor[2]);
 			// Create new command pack if the current is filled
 			currentCommandId++;
 			if (currentCommandId >= 4)
