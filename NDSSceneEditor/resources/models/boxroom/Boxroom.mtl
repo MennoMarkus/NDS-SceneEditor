@@ -1,0 +1,200 @@
+# Blender MTL File: 'boxroom.blend'
+# Material Count: 18
+
+newmtl Crate
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.001
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.002
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.003
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.004
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.005
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.006
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.007
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.008
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.009
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.010
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.011
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.012
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.013
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.014
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl Crate.015
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.207802 0.030909
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Crate.png
+
+newmtl FloorCeiling
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.000000 0.000000 0.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Floor.png
+
+newmtl Wall
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd C:\\Users\\pelle\\Pictures\\NDS textures\\Wall.png
