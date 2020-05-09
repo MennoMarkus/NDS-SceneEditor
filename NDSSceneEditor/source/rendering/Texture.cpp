@@ -48,23 +48,9 @@ namespace nds_se
 		m_textureData.m_bitmap = FreeImage_ConvertTo24Bits(temp);
 		FreeImage_Unload(temp);
 
+		// Create a compressed copy of the texture.
 		if (m_compressOnLoad)
-		{
-			// Create a compressed copy of the texture.
 			compress();
-
-			// Compressed texture can be upscaled. Report if this is the case.
-			m_textureCoordinateScaleFactor = (glm::vec2)m_textureData.getSize() / (glm::vec2)m_compressedTextureData.getSize();
-			if (m_textureCoordinateScaleFactor != glm::vec2(1))
-				LOG(LOG_WARNING, "Texture " << m_filePath << " needed to be upscaled for compatibility with the Nintendo DS. Please provide an image with a size devidable by 4 to prevent problems with repeating textures!");
-
-			// Compressed texture can be upscaled. Scale the orginal texture to the compressed texture size.
-			TextureData temp2(m_compressedTextureData.getSize(), 24);
-			RGBQUAD fillColor = { 0, 0, 0 };
-			FreeImage_FillBackground(temp2.m_bitmap, &fillColor);
-			temp2.paste(m_textureData, { 0, 0 }, 256);
-			m_textureData = temp2;
-		}
 
 		//Create and bind texture.
 		glGenTextures(1, &m_renderID);
@@ -101,6 +87,21 @@ namespace nds_se
 		textureCompressor.setQuantizeAlgorithm(m_tileCompressionAlgorithm);
 		textureCompressor.setColorError(m_colorCompressionError);
 		textureCompressor.compress(m_compressedTextureData);
+
+		// Compressed texture can be upscaled. Report if this is the case.
+		m_textureCoordinateScaleFactor = (glm::vec2)m_textureData.getSize() / (glm::vec2)m_compressedTextureData.getSize();
+		if (m_textureCoordinateScaleFactor != glm::vec2(1))
+			LOG(LOG_WARNING, "Texture " << m_filePath << " needed to be upscaled for compatibility with the Nintendo DS. Please provide an image with a size devidable by 4 to prevent problems with repeating textures!");
+
+		// Compressed texture can be upscaled. Scale the orginal texture to the compressed texture size.
+		TextureData temp2(m_compressedTextureData.getSize(), 24);
+		RGBQUAD fillColor = { 0, 0, 0 };
+		FreeImage_FillBackground(temp2.m_bitmap, &fillColor);
+		temp2.paste(m_textureData, { 0, 0 }, 256);
+		m_textureData = temp2;
+
+		// Upload the new texture data.
+		setDisplayCompressedTexture(m_displayCompressedTexture);
 	}
 
 	void Texture::bind() const
@@ -116,8 +117,8 @@ namespace nds_se
 
 	void Texture::setDisplayCompressedTexture(bool showCompressed)
 	{
-		// Make sure there is an actual compressed texture to switch between.
-		if (m_compressedTextureData.m_bitmap == nullptr)
+		// Make sure there is an actual texture data to switch between.
+		if (m_compressedTextureData.m_bitmap == nullptr || m_renderID == 0)
 			return;
 
 		// Switch the texture data bound to this render ID.

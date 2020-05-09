@@ -38,6 +38,8 @@ namespace nds_se
 		void load();
 		bool equalsResource(const Texture& other) const;
 
+		void compress();
+
 		void bind() const;
 		void unBind() const;
 
@@ -51,7 +53,5 @@ namespace nds_se
 		// Prevent resource copies as this will delete OpenGL IDs and pointers multiple times
 		Texture& operator=(const Texture&) = delete;
 		Texture(const Texture&) = delete;
-
-		void compress();
 	};
 }
