@@ -21,5 +21,7 @@ namespace nds_se
 
 		void log(const std::string& message);
 		void clear();
+
+		void printTextFormatted(const char* lineStart, const char* lineEnd) const;
 	};
 }

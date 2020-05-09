@@ -576,6 +576,7 @@
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <CompileAs />
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc142-mt.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -605,6 +606,7 @@ XCOPY "$(ProjectDir)dependencies\freeImage\$(PlatformTarget)\*.dll" "$(TargetDir
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <CompileAs />
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc142-mt.lib;FreeImage.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -639,6 +641,7 @@ XCOPY "$(ProjectDir)dependencies\freeImage\$(PlatformTarget)\*.dll" "$(TargetDir
       <CompileAs>
       </CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>
@@ -681,6 +684,7 @@ XCOPY "$(ProjectDir)dependencies\freeImage\$(PlatformTarget)\*.dll" "$(TargetDir
       <CompileAs>
       </CompileAs>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>

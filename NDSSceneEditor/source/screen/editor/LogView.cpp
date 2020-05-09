@@ -60,7 +60,7 @@ namespace nds_se
 
 					// Check against filter 
 					if (m_filter.PassFilter(lineStart, lineEnd))
-						ImGui::TextUnformatted(lineStart, lineEnd);
+						printTextFormatted(lineStart, lineEnd);
 				}
 			}
 			// Print only items within the console viewport
@@ -80,8 +80,7 @@ namespace nds_se
 						else
 							lineEnd = bufferEnd;
 
-						// Print line to the console
-						ImGui::TextUnformatted(lineStart, lineEnd);
+						printTextFormatted(lineStart, lineEnd);
 					}
 				}
 				clipper.End();
@@ -115,5 +114,57 @@ namespace nds_se
 		m_buffer.clear();
 		m_lineOffsets.clear();
 		m_lineOffsets.push_back(0);
+	}
+
+	void LogView::printTextFormatted(const char* lineStart, const char* lineEnd) const
+	{
+		if (strncmp(lineStart, "[DEBUG]", 7) == 0)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, { 0.0f, 0.7f, 0.0f, 1.0f });
+
+			// Print line to the console
+			ImGui::TextUnformatted(lineStart, lineStart + 7);
+			ImGui::SameLine();
+			ImGui::PopStyleColor();
+			ImGui::TextUnformatted(lineStart + 7, lineEnd);
+		}
+		else if (strncmp(lineStart, "[WARNING]", 9) == 0)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 1.0f, 0.0f, 1.0f });
+
+			// Print line to the console
+			ImGui::TextUnformatted(lineStart, lineStart + 9);
+			ImGui::SameLine();
+			ImGui::PopStyleColor();
+			ImGui::TextUnformatted(lineStart + 9, lineEnd);
+		}
+		else if (strncmp(lineStart, "[ERROR]", 7) == 0)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+
+			// Print line to the console
+			ImGui::TextUnformatted(lineStart, lineStart + 7);
+			ImGui::SameLine();
+			ImGui::PopStyleColor();
+			ImGui::TextUnformatted(lineStart + 7, lineEnd);
+		}
+		else if (strncmp(lineStart, "[FATAL]", 7) == 0)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 1.0f, 1.0f });
+
+			// Print line to the console
+			ImGui::TextUnformatted(lineStart, lineStart + 7);
+			ImGui::SameLine();
+			ImGui::PopStyleColor();
+			ImGui::TextUnformatted(lineStart + 7, lineEnd);
+		}
+		else
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 1.0f, 1.0f, 1.0f });
+
+			// Print line to the console
+			ImGui::TextUnformatted(lineStart, lineEnd);
+			ImGui::PopStyleColor();
+		}
 	}
 }

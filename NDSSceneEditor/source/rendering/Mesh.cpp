@@ -78,7 +78,7 @@ namespace nds_se
 		}
 		else
 		{
-			Texture& texture = textureManager->getOrLoadResource(nullptr, "resources/textures/WhiteTex.png");
+			Texture& texture = textureManager->getOrLoadResource(nullptr, "resources/textures/WhiteTex.png", nullptr);
 			texture.bind();
 		}
 

@@ -27,7 +27,7 @@ namespace nds_se
 		m_renderer.setShaderProgram(shader);
 
 		// Load default texture
-		m_textureManager.loadResource("resources/textures/WhiteTex.png");
+		m_textureManager.loadResource("resources/textures/WhiteTex.png", false);
 
 		// Setup entities
 		ServiceLocator::get().provideService<EntityManager>(&m_entityManager);
@@ -47,52 +47,14 @@ namespace nds_se
 		float currentTime = (float)glfwGetTime();
 		float lastTime = currentTime;
 
-		// ECS TEST CODE
-		std::unique_ptr<ISystemBase> systemPtr(new SystemBase<int, float>("System",
-			[](Entity entity, int& t1, float& t2) 
-			{
-				LOG(LOG_DEBUG, "System reports entity " << entity << " with values " << t1 << " and " << t2);
-			}
-		));
-		m_entityManager.registerSystem(std::move(systemPtr));
-
-		std::unique_ptr<ISystemBase> system2Ptr(new SystemBase<>("System2", 
-			[](Entity entity)
-			{
-				LOG(LOG_DEBUG, "System2 reports entity " << entity);
-			}
-		));
-		m_entityManager.registerSystem(std::move(system2Ptr));
-		
-		LOG(LOG_DEBUG, "Created entity " << m_entityManager.createEntity());
-		LOG(LOG_DEBUG, "Created entity " << m_entityManager.createEntity());
-		LOG(LOG_DEBUG, "Created entity " << m_entityManager.createEntity());
-		m_entityManager.destroyEntity(1);
-		LOG(LOG_DEBUG, "Destroyed entity 1");
-		LOG(LOG_DEBUG, "Created entity " << m_entityManager.createEntity());
-		LOG(LOG_DEBUG, "Created entity " << m_entityManager.createEntity());
-
-		m_entityManager.setComponent<int>(1, 1);
-		LOG(LOG_DEBUG, "Entity 1, set component<int> to { 1 }");
-		m_entityManager.setComponent<float>(1, 1.0f);
-		LOG(LOG_DEBUG, "Entity 1, set component<float> to { 1.0f }");
-		m_entityManager.setComponent<int>(2, 2);
-		LOG(LOG_DEBUG, "Entity 2, set component<int> to { 2 }");
-		m_entityManager.setComponent<int>(3, 3);
-		LOG(LOG_DEBUG, "Entity 3, set component<int> to { 3 }");
-		m_entityManager.removeComponent<int>(2);
-		LOG(LOG_DEBUG, "Entity 2, removed component<int>");
-		LOG(LOG_DEBUG, "Entity 3, returns component<int> data " << m_entityManager.getComponent<int>(3));
-
-		m_entityManager.update();
-		//
-
 		while (!m_window.shouldClose())
 		{
 			// Update
 			lastTime = currentTime;
 			currentTime = (float)glfwGetTime();
 			m_camera.updateCameraMovement(m_window, currentTime - lastTime);
+
+			m_entityManager.update();
 
 			// Render
 			m_window.beginRender();

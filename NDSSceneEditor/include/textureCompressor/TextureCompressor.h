@@ -19,9 +19,12 @@ namespace nds_se
 	private:
 		const int TILE_WIDTH = 4;
 		const int TILE_HEIGHT = 4;
-		const int COLOR_ERROR = 8;
 
 		TextureData m_texture;
+
+		// Settings
+		unsigned int m_colorError = 8;
+		FREE_IMAGE_QUANTIZE m_quantizeAlgorithm = FIQ_WUQUANT;
 
 		// Compressed data
 		std::vector<RGBQUAD> m_palette;
@@ -29,8 +32,15 @@ namespace nds_se
 		std::vector<unsigned short> m_headers;
 
 	public:
+		// The textureCompressor will resize textures to the nearest multiple of 4 on each axis.
 		TextureCompressor(TextureData& texture);
 		void compress(TextureData& o_compressedTextureData);
+
+		unsigned int getColorError() const { return m_colorError; }
+		void setColorError(unsigned int error) { m_colorError = error <= 1 ? 1 : error; }
+
+		FREE_IMAGE_QUANTIZE getQuantizeAlgorithm() const { return m_quantizeAlgorithm; }
+		void setQuantizeAlgorithm(FREE_IMAGE_QUANTIZE algorithm) { m_quantizeAlgorithm = algorithm; }
 
 	private:
 		int countUniqueColors(const TextureData& texture);

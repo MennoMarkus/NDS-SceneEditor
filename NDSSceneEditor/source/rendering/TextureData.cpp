@@ -8,7 +8,16 @@ namespace nds_se
 
 	TextureData::TextureData(const TextureData& texture)
 	{
-		m_bitmap = FreeImage_Clone(m_bitmap);
+		m_bitmap = FreeImage_Clone(texture.m_bitmap);
+	}
+
+	TextureData& TextureData::operator=(const TextureData& texture)
+	{
+		if (m_bitmap != nullptr)
+			FreeImage_Unload(m_bitmap);
+
+		m_bitmap = FreeImage_Clone(texture.m_bitmap);
+		return *this;
 	}
 
 	TextureData::TextureData(glm::uvec2 size, unsigned int BPP)
@@ -33,7 +42,6 @@ namespace nds_se
 	void TextureData::paste(TextureData& texture, glm::uvec2 topLeft, unsigned int alpha)
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_RGB);
-		//assert(texture.m_bitmap && FreeImage_GetColorType(texture.m_bitmap) == FIC_RGB);
 		FreeImage_Paste(m_bitmap, texture.m_bitmap, topLeft.x, topLeft.y, alpha);
 	}
 
@@ -61,13 +69,13 @@ namespace nds_se
 		return FreeImage_GetPitch(m_bitmap);
 	}
 
-	inline int TextureData::getBPP() const
+	int TextureData::getBPP() const
 	{
 		assert(m_bitmap);
 		return FreeImage_GetBPP(m_bitmap);
 	}
 
-	inline RGBQUAD TextureData::getPixelColor(glm::uvec2 pixel) const
+	RGBQUAD TextureData::getPixelColor(glm::uvec2 pixel) const
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_RGB);
 
@@ -76,7 +84,7 @@ namespace nds_se
 		return result;
 	}
 
-	inline bool TextureData::setPixelColor(glm::uvec2 pixel, RGBQUAD color)
+	bool TextureData::setPixelColor(glm::uvec2 pixel, RGBQUAD color)
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_RGB);
 		return FreeImage_SetPixelColor(m_bitmap, pixel.x, pixel.y, &color) == TRUE ? true : false;
@@ -91,19 +99,19 @@ namespace nds_se
 		return result;
 	}
 
-	inline bool TextureData::setPixelIndex(glm::uvec2 pixel, BYTE color)
+	bool TextureData::setPixelIndex(glm::uvec2 pixel, BYTE color)
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_PALETTE);
 		return FreeImage_SetPixelIndex(m_bitmap, pixel.x, pixel.y, &color) == TRUE ? true : false;
 	}
 
-	inline const RGBQUAD* const TextureData::getPalette() const
+	const RGBQUAD* const TextureData::getPalette() const
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_PALETTE);
 		return FreeImage_GetPalette(m_bitmap);
 	}
 
-	inline void TextureData::setPalette(const RGBQUAD* const palette)
+	void TextureData::setPalette(const RGBQUAD* const palette)
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_PALETTE);
 
@@ -111,7 +119,7 @@ namespace nds_se
 		memcpy(dstPalette, palette, sizeof(RGBQUAD) * 256);
 	}
 
-	inline unsigned TextureData::getColorsUsed() const
+	unsigned TextureData::getColorsUsed() const
 	{
 		assert(m_bitmap && FreeImage_GetColorType(m_bitmap) == FIC_PALETTE);
 		return FreeImage_GetColorsUsed(m_bitmap);

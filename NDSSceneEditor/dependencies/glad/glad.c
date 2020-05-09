@@ -27,7 +27,10 @@
 static void* get_proc(const char *namez);
 
 #if defined(_WIN32) || defined(__CYGWIN__)
+#pragma warning(push)
+#pragma warning(disable:4005)
 #include <windows.h>
+#pragma warning(pop)
 static HMODULE libGL;
 
 typedef void* (APIENTRYP PFNWGLGETPROCADDRESSPROC_PRIVATE)(const char*);

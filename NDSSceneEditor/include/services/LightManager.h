@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "Service.h"
 
 #include <vector>
@@ -45,4 +45,4 @@ private:
 	unsigned int m_nextID;
 	std::map<unsigned int, Light> m_lights;
 	std::vector<Light> m_lightVec;
-};
+};*/

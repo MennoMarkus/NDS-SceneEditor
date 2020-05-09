@@ -161,7 +161,7 @@ namespace nds_se
 
 		// Begin a new triangle strip.
 		m_currentStripID++;
-		m_connectivityGraph[start]->m_stripID = m_currentStripID;
+		m_connectivityGraph[start]->m_stripID = (unsigned int)m_currentStripID;
 		addTriangleStripTriangle(*m_connectivityGraph[start], order, false);
 
 		size_t size = 1;
@@ -182,7 +182,7 @@ namespace nds_se
 			{
 				// Get the next node to link to.
 				node = link->getTerminal();
-				(*node)->m_stripID = m_currentStripID;
+				(*node)->m_stripID = (unsigned int)m_currentStripID;
 				clockWise = !clockWise;
 			}
 		}
@@ -236,7 +236,7 @@ namespace nds_se
 	{
 		// Begin a new triangle strip.
 		m_currentStripID++;
-		m_connectivityGraph[start]->m_stripID = m_currentStripID;
+		m_connectivityGraph[start]->m_stripID = (unsigned int)m_currentStripID;
 
 		size_t size = 1;
 
@@ -255,7 +255,7 @@ namespace nds_se
 			{
 				// Get the next node to link to.
 				node = link->getTerminal();
-				(*node)->m_stripID = m_currentStripID;
+				(*node)->m_stripID = (unsigned int)m_currentStripID;
 				isClockWise = !isClockWise;
 			}
 		}
@@ -264,7 +264,7 @@ namespace nds_se
 		if (isClockWise)
 			return TriangleStrip();
 
-		return TriangleStrip(node - m_connectivityGraph.begin(), order, size);
+		return TriangleStrip((unsigned int)(node - m_connectivityGraph.begin()), order, size);
 	}
 
 	ArcsConstIterator TriangleStripper::backwardLinkToNeighbour(NodesConstIterator node, bool isClockWise, TriangleStripOrder& o_order)
@@ -324,7 +324,7 @@ namespace nds_se
 
 			// Get the next triangle.
 			node = link->getTerminal();
-			markTriangle(node - m_connectivityGraph.begin());
+			markTriangle((unsigned int)(node - m_connectivityGraph.begin()));
 			isClockWise = !isClockWise;
 		}
 	}
@@ -394,7 +394,7 @@ namespace nds_se
 		// Adjust the connection count of neighbouring triangles.
 		for (auto link = m_connectivityGraph[triangleID].begin(); link != m_connectivityGraph[triangleID].end(); ++link)
 		{
-			unsigned int neighbourTriangleID = link->getTerminal() - m_connectivityGraph.begin();
+			unsigned int neighbourTriangleID = (unsigned int)(link->getTerminal() - m_connectivityGraph.begin());
 
 			if (!m_connectivityGraph[neighbourTriangleID].isMarked() && m_triangleHeap.hasTriangle(neighbourTriangleID))
 			{

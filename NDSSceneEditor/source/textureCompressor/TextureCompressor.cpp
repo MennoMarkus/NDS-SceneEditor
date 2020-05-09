@@ -32,10 +32,9 @@ namespace nds_se
 	void TextureCompressor::compress(TextureData& o_compressedTextureData)
 	{
 		o_compressedTextureData.create(m_texture.getSize(), 24);
-
-		std::vector<RGBQUAD> palette;
-		std::vector<unsigned char> blocks;
-		std::vector<unsigned short> headers;
+		m_palette.clear();
+		m_blocks.clear();
+		m_headers.clear();
 
 		RGBQUAD padColor;
 		padColor.rgbRed = 255;
@@ -51,7 +50,7 @@ namespace nds_se
 
 				// Quantize (paletize) an tile in the image into a 4 bit palette color bitmap.
 				TextureData tile = FreeImage_Copy(m_texture.m_bitmap, x, y, x + TILE_WIDTH, y + TILE_HEIGHT);
-				TextureData tileQuant = FreeImage_ColorQuantizeEx(tile.m_bitmap, FIQ_WUQUANT, colorCount, 0, NULL);
+				TextureData tileQuant = FreeImage_ColorQuantizeEx(tile.m_bitmap, m_quantizeAlgorithm, colorCount, 0, NULL);
 				assert(tileQuant.m_bitmap != nullptr);
 
 				// Get color pallet size.
@@ -65,8 +64,8 @@ namespace nds_se
 				TexelBlockMode blockMode = MODE2; // 4 colors for if all else fails
 				if (colorCount == 4)
 				{
-					if (compareColors(palette[1], getLerpedColor(palette[0], palette[3], 0.375), 2 * COLOR_ERROR) &&
-						compareColors(palette[2], getLerpedColor(palette[0], palette[3], 0.625), 2 * COLOR_ERROR))
+					if (compareColors(palette[1], getLerpedColor(palette[0], palette[3], 0.375), 2 * m_colorError) &&
+						compareColors(palette[2], getLerpedColor(palette[0], palette[3], 0.625), 2 * m_colorError))
 					{
 						lerpColors[0] = palette[0];
 						lerpColors[1] = palette[3];
@@ -83,7 +82,7 @@ namespace nds_se
 				}
 				else if (colorCount == 3)
 				{
-					if (compareColors(palette[1], getLerpedColor(palette[0], palette[2], 0.5), 2 * COLOR_ERROR))
+					if (compareColors(palette[1], getLerpedColor(palette[0], palette[2], 0.5), 2 * m_colorError))
 					{
 						lerpColors[0] = palette[0];
 						lerpColors[1] = palette[2];
@@ -94,7 +93,8 @@ namespace nds_se
 						FreeImage_SwapPaletteIndices(tileQuant.m_bitmap, &a, &b);
 
 						palette = lerpColors;
-						colorCount = colorPadCount = 2;
+						colorCount = 2;
+						colorPadCount = 2;
 						blockMode = MODE1;
 					}
 					else
@@ -119,7 +119,7 @@ namespace nds_se
 					int currentMaxDifference = 0;
 					for (int i = 0; i < colorCount; ++i)
 					{
-						int difference = getColorDifference(m_palette[base + i], palette[i]);
+						int difference = getColorDifference(m_palette[(size_t)base + i], palette[i]);
 						currentMaxDifference = std::max(currentMaxDifference, difference);
 					}
 
@@ -131,7 +131,7 @@ namespace nds_se
 				}
 
 				// Add the current palette to the global palette if the color difference is not within a margin of error with our current palette.
-				if (minDifference < COLOR_ERROR)
+				if (minDifference < (int)m_colorError)
 					base = minDifferenceBase;
 				else
 				{
@@ -178,9 +178,9 @@ namespace nds_se
 
 		// Count colors by counting color indices.
 		int max = 0;
-		for (int y = 0; y < texture.getSize().y; y++)
+		for (int y = 0; y < (int)texture.getSize().y; y++)
 		{
-			for (int x = 0; x < texture.getSize().x; x++)
+			for (int x = 0; x < (int)texture.getSize().x; x++)
 			{
 				if (bits[x] > max) 
 					max = bits[x];

@@ -16,8 +16,9 @@ namespace nds_se
 	public:
 		TextureData() = default;
 		TextureData(FIBITMAP* bitmap);
-		TextureData(const TextureData& texture);
 		TextureData(glm::uvec2 size, unsigned int BPP);
+		TextureData(const TextureData& texture);
+		TextureData& operator=(const TextureData& texture);
 		~TextureData();
 
 		void create(glm::uvec2 size, unsigned int BPP);

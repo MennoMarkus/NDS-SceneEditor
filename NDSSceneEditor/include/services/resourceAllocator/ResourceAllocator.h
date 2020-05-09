@@ -34,6 +34,8 @@ namespace nds_se
 		RESOURCE& getResource(ResourceID<RESOURCE> ID);
 
 		void unloadResource(ResourceID<RESOURCE> ID);
+
+		const std::unordered_map<ResourceID<RESOURCE>, std::unique_ptr<RESOURCE>>& getResources() const;
 	};
 
 	/*
@@ -129,5 +131,11 @@ namespace nds_se
 		auto it = m_resources.find(ID);
 		if (it != m_resources.end())
 			m_resources.erase(it);
+	}
+
+	template<typename RESOURCE>
+	inline const std::unordered_map<ResourceID<RESOURCE>, std::unique_ptr<RESOURCE>>& ResourceAllocator<RESOURCE>::getResources() const
+	{
+		return m_resources;
 	}
 }

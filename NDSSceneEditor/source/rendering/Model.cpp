@@ -150,7 +150,14 @@ namespace nds_se
 			}
 
 			ResourceAllocator<Texture>* textureManager = ServiceLocator::get<ResourceAllocator<Texture>>();
-			textureManager->getOrLoadResource(&textureID, texturePath.C_Str());
+			Texture& texture = textureManager->getOrLoadResource(&textureID, texturePath.C_Str(), true);
+
+			// Textures can be rescaled due to compression, so we need to adjust texture coordinates.
+			for (auto& vertex : vertices)
+			{
+				vertex.textureCoordinate *= texture.getTextureCoordinateScaleFactor();
+				vertex.textureCoordinate += glm::vec2(1.0f) - texture.getTextureCoordinateScaleFactor();
+			}
 		}
 
 		// Post process indices into triangle strips

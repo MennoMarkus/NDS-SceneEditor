@@ -1,5 +1,5 @@
 #include "services/LightManager.h"
-
+/*
 LightManager::LightManager(unsigned int cap) {
 	m_lightCap = cap;
 	m_nextID = 0;
@@ -80,4 +80,4 @@ std::vector<Light>* LightManager::get_lights() {
 }
 unsigned int LightManager::get_lights_count() {
 	return m_lightCount;
-}
+}*/
