@@ -32,8 +32,6 @@
     <ClCompile Include="dependencies\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
-    <ClCompile Include="source\components\CmpLightPoint.cpp" />
-    <ClCompile Include="source\components\CmpTransform.cpp" />
     <ClCompile Include="source\editor\MapEditor.cpp" />
     <ClCompile Include="source\Application.cpp" />
     <ClCompile Include="source\EntityManager.cpp" />
@@ -54,13 +52,13 @@
     <ClCompile Include="source\rendering\Renderer.cpp" />
     <ClCompile Include="source\services\ServiceLocator.cpp" />
     <ClCompile Include="source\screen\window\Window.cpp" />
+    <ClCompile Include="source\systems\SysScenegraph.cpp" />
     <ClCompile Include="source\textureCompressor\TextureCompressor.cpp" />
     <ClCompile Include="source\triangleStripper\connectivityGraph\TriangleConnectivityGraph.cpp" />
     <ClCompile Include="source\triangleStripper\connectivityGraph\TriangleConnectivityGraphTypes.cpp" />
     <ClCompile Include="source\triangleStripper\TriangleStripper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\components\CmpLightPoint.h" />
     <ClInclude Include="include\components\CmpTransform.h" />
     <ClInclude Include="include\ecs\ComponentDataArray.h" />
     <ClInclude Include="include\ecs\Entity.h" />
@@ -88,6 +86,7 @@
     <ClInclude Include="include\services\Service.h" />
     <ClInclude Include="include\services\ServiceLocator.h" />
     <ClInclude Include="include\screen\window\Window.h" />
+    <ClInclude Include="include\systems\SysScenegraph.h" />
     <ClInclude Include="include\triangleStripper\connectivityGraph\TriangleConnectivityGraphTypes.h" />
     <ClInclude Include="include\triangleStripper\Triangle.h" />
     <ClInclude Include="include\triangleStripper\connectivityGraph\TriangleConnectivityGraph.h" />

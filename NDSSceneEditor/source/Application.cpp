@@ -5,6 +5,7 @@
 
 #include "ecs/ComponentDataArray.h"
 #include "ecs/SystemBase.h"
+#include "systems/SysScenegraph.h"
 
 namespace nds_se
 {
@@ -29,8 +30,9 @@ namespace nds_se
 		// Load default texture
 		m_textureManager.loadResource("resources/textures/WhiteTex.png", false);
 
-		// Setup entities
+		// Setup entities/systems
 		ServiceLocator::get().provideService<EntityManager>(&m_entityManager);
+		m_entityManager.registerSystem<SysScenegraph>();
 	}
 
 	Application::~Application()
@@ -54,20 +56,17 @@ namespace nds_se
 			currentTime = (float)glfwGetTime();
 			m_camera.updateCameraMovement(m_window, currentTime - lastTime);
 
-			m_entityManager.update();
-
-			// Render
+			// Begin Render
 			m_window.beginRender();
+			m_viewportUI.render();
+
+			m_entityManager.update();
 
 			// Render models
 			m_renderer.setViewProjectionMatrix(m_camera.getViewProjectionMatrix(m_window.getSize()));
 			m_renderer.drawModel(model, glm::translate(glm::mat4(1), modelTranslation));
 
-			// Render editor
-			m_viewportUI.render();
 			m_logViewUI.render();
-			m_sceneViewUI.render();
-
 			m_window.endRender();
 		}
 	}

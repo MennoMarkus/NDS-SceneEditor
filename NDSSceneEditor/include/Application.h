@@ -26,7 +26,6 @@ namespace nds_se
 		Viewport m_viewportUI;
 		LogView m_logViewUI;
 		LogCallbackID m_logViewUICallbackID;
-		SceneView m_sceneViewUI;
 
 		ResourceAllocator<Texture> m_textureManager;
 		ResourceAllocator<Model> m_modelManager;

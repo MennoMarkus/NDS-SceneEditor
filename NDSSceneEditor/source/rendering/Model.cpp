@@ -167,7 +167,7 @@ namespace nds_se
 		
 		for (auto& primative : primatives)
 		{
-			// TODO: separte out vertices
+			// TODO: separte out vertices? Not needed for NDS exporting but would be more efficient for the OpenGL renderer.
 			m_meshes.emplace_back(primative.m_type, vertices, primative.m_indices, textureID);
 		}
 	}

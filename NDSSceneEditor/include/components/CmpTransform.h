@@ -1,7 +1,7 @@
 #pragma once
-
 #include "glm/glm.hpp"
 
-struct CmpTransform {
+struct CmpTransform 
+{
 	glm::mat4 matrix;
 };
