@@ -10,7 +10,6 @@
 
 #include "screen/editor/Viewport.h"
 #include "screen/editor/LogView.h"
-#include "screen/editor/SceneView.h"
 
 #include "ecs/EntityManager.h"
 

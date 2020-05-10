@@ -32,7 +32,6 @@
     <ClCompile Include="dependencies\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
-    <ClCompile Include="source\editor\MapEditor.cpp" />
     <ClCompile Include="source\Application.cpp" />
     <ClCompile Include="source\EntityManager.cpp" />
     <ClCompile Include="source\Main.cpp" />
@@ -43,7 +42,6 @@
     <ClCompile Include="source\rendering\Texture.cpp" />
     <ClCompile Include="source\rendering\TextureData.cpp" />
     <ClCompile Include="source\screen\editor\LogView.cpp" />
-    <ClCompile Include="source\screen\editor\SceneView.cpp" />
     <ClCompile Include="source\screen\editor\Viewport.cpp" />
     <ClCompile Include="source\services\DebugRenderer.cpp" />
     <ClCompile Include="source\screen\window\WindowInput.cpp" />
@@ -64,7 +62,6 @@
     <ClInclude Include="include\ecs\Entity.h" />
     <ClInclude Include="include\ecs\EntityManager.h" />
     <ClInclude Include="include\ecs\SystemBase.h" />
-    <ClInclude Include="include\editor\MapEditor.h" />
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Main.h" />
     <ClInclude Include="include\rendering\Camera.h" />
@@ -74,7 +71,6 @@
     <ClInclude Include="include\rendering\Texture.h" />
     <ClInclude Include="include\rendering\TextureData.h" />
     <ClInclude Include="include\rendering\Vertex.h" />
-    <ClInclude Include="include\screen\editor\SceneView.h" />
     <ClInclude Include="include\screen\editor\Viewport.h" />
     <ClInclude Include="include\services\DebugRenderer.h" />
     <ClInclude Include="include\screen\window\WindowInput.h" />
