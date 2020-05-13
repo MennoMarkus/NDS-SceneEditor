@@ -31,6 +31,20 @@ namespace nds_se
 		system->m_entityManager = this;
 		system->registerComponents();
 		m_systems.emplace_back(std::move(system));
+
+		// Add entities to the system
+		EntityArchetype systemArcheType = m_systems.back()->m_archetype;
+		for (Entity entityID = 1; entityID < m_avialableEntityIDs.size(); entityID++)
+		{
+			// Skip entity IDs that are not in use.
+			if (m_avialableEntityIDs[entityID] == true)
+				return;
+
+			// Systems only run on entities with a matching archetype.
+			EntityArchetype entityArcheType = getArchetype(entityID);
+			if ((systemArcheType & entityArcheType) == systemArcheType || systemArcheType == 0)
+				m_systems.back()->m_entities.insert(entityID);
+		}
 	}
 
 	inline void EntityManager::registerSystem(std::unique_ptr<ISystemBase> system)
@@ -44,6 +58,20 @@ namespace nds_se
 		system->m_entityManager = this;
 		system->registerComponents();
 		m_systems.emplace_back(std::move(system));
+
+		// Add entities to the system
+		EntityArchetype systemArcheType = m_systems.back()->m_archetype;
+		for (Entity entityID = 1; entityID < m_avialableEntityIDs.size(); entityID++)
+		{
+			// Skip entity IDs that are not in use.
+			if (m_avialableEntityIDs[entityID] == true)
+				return;
+
+			// Systems only run on entities with a matching archetype.
+			EntityArchetype entityArcheType = getArchetype(entityID);
+			if ((systemArcheType & entityArcheType) == systemArcheType || systemArcheType == 0)
+				m_systems.back()->m_entities.insert(entityID);
+		}
 	}
 
 	template<typename T>

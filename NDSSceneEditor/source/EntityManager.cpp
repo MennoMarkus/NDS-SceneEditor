@@ -85,7 +85,7 @@ namespace nds_se
 			EntityArchetype systemArcheType = system->m_archetype;
 
 			// Systems only run on entities with a matching archetype.
-			if (systemArcheType == archetype || systemArcheType == 0)
+			if ((systemArcheType & archetype) == systemArcheType || systemArcheType == 0)
 				system->m_entities.insert(entity);
 			else
 				system->m_entities.erase(entity);
