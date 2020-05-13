@@ -25,7 +25,7 @@ namespace nds_se
 		// Set the new entity ID to unavialable.
 		m_avialableEntityIDs[entity] = false;
 
-		// Add entity for systems that run on all entities
+		// Add entity for systems that run on all entities.
 		for (auto& system : m_systems)
 		{
 			EntityArchetype systemArcheType = system->m_archetype;
@@ -35,6 +35,13 @@ namespace nds_se
 				system->m_entities.insert(entity);
 		}
 
+		// Add entity to queries that match.
+		for (auto& query : m_querries)
+		{
+			if (query.first == 0)
+				query.second.insert(entity);
+		}
+
 		return entity;
 	}
 
@@ -42,24 +49,30 @@ namespace nds_se
 	{
 		assert(m_avialableEntityIDs[entity] == false && "Entity is not avialable.");
 
-		// Remove components
+		// Remove components.
 		for (auto& componentDataArray : m_componentArrays)
 		{
 			ComponentType componentType = m_componentTypes[componentDataArray.first];
 			EntityArchetype archetype = getArchetype(entity);
 
-			// Check if this entity has this component
+			// Check if this entity has this component.
 			if (archetype.test(componentType) != false)
 				componentDataArray.second->erase(entity);
 		}
 
-		// Remove entity for systems
+		// Remove entity form systems.
 		for (auto& system : m_systems)
 		{
 			system->m_entities.erase(entity);
 		}
 
-		// Reset archetype to no components
+		// Remove entity from queries.
+		for (auto& query : m_querries)
+		{
+			query.second.erase(entity);
+		}
+
+		// Reset archetype to no components.
 		m_entityArchetypes[entity] = 0;
 
 		// Set the entity ID to avialable.
@@ -74,12 +87,40 @@ namespace nds_se
 		return m_entityArchetypes[entity];
 	}
 
+	const std::set<Entity>& EntityManager::getEntityQuery(EntityArchetype archetype)
+	{
+		auto it = m_querries.find(archetype);
+
+		// Create a new querry.
+		if (it == m_querries.end())
+		{
+			// Get all entities that match this querry.
+			for (Entity entityID = 1; entityID < m_avialableEntityIDs.size(); entityID++)
+			{
+				// Skip entity IDs that are not in use.
+				if (m_avialableEntityIDs[entityID] == true)
+					continue;
+
+				EntityArchetype entityArcheType = getArchetype(entityID);
+				if ((archetype & entityArcheType) == archetype || archetype == 0)
+					m_querries[archetype].insert(entityID);
+			}
+
+			return m_querries[archetype];
+		}
+		// return an excisting query
+		else
+		{
+			return it->second;
+		}
+	}
+
 	void EntityManager::setArchetype(Entity entity, EntityArchetype archetype)
 	{
 		assert(m_avialableEntityIDs[entity] == false && "Entity is not avialable.");
 		m_entityArchetypes[entity] = archetype;
 
-		// Update the systems to add or remove this system
+		// Update the systems to add or remove this entity.
 		for (auto& system : m_systems)
 		{
 			EntityArchetype systemArcheType = system->m_archetype;
@@ -89,6 +130,15 @@ namespace nds_se
 				system->m_entities.insert(entity);
 			else
 				system->m_entities.erase(entity);
+		}
+
+		// Update the queries to add or remove this entity.
+		for (auto& query : m_querries)
+		{
+			if ((query.first & archetype) == query.first || query.first == 0)
+				query.second.insert(entity);
+			else
+				query.second.erase(entity);
 		}
 	}
 

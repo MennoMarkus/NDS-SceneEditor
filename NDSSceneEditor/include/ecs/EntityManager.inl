@@ -38,7 +38,7 @@ namespace nds_se
 		{
 			// Skip entity IDs that are not in use.
 			if (m_avialableEntityIDs[entityID] == true)
-				return;
+				continue;
 
 			// Systems only run on entities with a matching archetype.
 			EntityArchetype entityArcheType = getArchetype(entityID);
@@ -65,13 +65,39 @@ namespace nds_se
 		{
 			// Skip entity IDs that are not in use.
 			if (m_avialableEntityIDs[entityID] == true)
-				return;
+				continue;
 
 			// Systems only run on entities with a matching archetype.
 			EntityArchetype entityArcheType = getArchetype(entityID);
 			if ((systemArcheType & entityArcheType) == systemArcheType || systemArcheType == 0)
 				m_systems.back()->m_entities.insert(entityID);
 		}
+	}
+
+	template<class ...Ts>
+	inline EntityArchetype EntityManager::getArchetype() const
+	{
+		EntityArchetype archetype = 0;
+
+		// Create a list containing each template arguments component type.
+		auto componentTypes = std::initializer_list<ComponentType>{ getComponentType<Ts>()... };
+
+		// Construct the archetype by orr-ing together each component type.
+		for (auto& componentType : componentTypes)
+		{
+			archetype.set(componentType, true);
+		}
+
+		return archetype;
+	}
+
+	template<class ...Ts>
+	inline const std::set<Entity>& EntityManager::getEntityQuery()
+	{
+		// Ensures each component is registered in the entity manager.
+		(registerComponent<Ts>(), ...);
+
+		return getEntityQuery(getArchetype<Ts...>());
 	}
 
 	template<typename T>

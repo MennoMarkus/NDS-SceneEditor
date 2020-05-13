@@ -29,7 +29,7 @@ namespace nds_se
 	protected:
 		inline const std::string& getName() const { return m_name; }
 		inline EntityArchetype getEntityArcheType() const { return m_archetype; }
-		inline EntityManager* const getEntityManager() { return m_entityManager; }
+		inline EntityManager* getEntityManager() { return m_entityManager; }
 		inline const std::set<Entity>& getEntities() const { return m_entities; }
 
 	private:

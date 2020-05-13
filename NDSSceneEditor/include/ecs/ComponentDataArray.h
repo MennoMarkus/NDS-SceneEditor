@@ -40,6 +40,9 @@ namespace nds_se
 		void insert(Entity entity);
 		void erase(Entity entity) override;
 		void reserve(size_t count);
+
+		const std::vector<Entity>& getIndexToEntity() const;
+		const std::vector<size_t>& getEntityToIndex() const;
 	};
 
 	/*
@@ -148,5 +151,17 @@ namespace nds_se
 			m_indexToEntity.resize(count + 1, INVALID_ENTITY);
 			m_components.resize(count + 1);
 		}
+	}
+
+	template<typename T>
+	inline const std::vector<Entity>& ComponentDataArray<T>::getIndexToEntity() const
+	{
+		return m_indexToEntity;
+	}
+
+	template<typename T>
+	inline const std::vector<size_t>& ComponentDataArray<T>::getEntityToIndex() const
+	{
+		return m_entityToIndex;
 	}
 }

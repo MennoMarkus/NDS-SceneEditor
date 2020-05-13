@@ -33,7 +33,7 @@
     <ClCompile Include="dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="dependencies\stb_image\stb_image.cpp" />
     <ClCompile Include="source\Application.cpp" />
-    <ClCompile Include="source\EntityManager.cpp" />
+    <ClCompile Include="source\ecs\EntityManager.cpp" />
     <ClCompile Include="source\Main.cpp" />
     <ClCompile Include="source\ndsCommandPacker\PackedFIFOCommand.cpp" />
     <ClCompile Include="source\rendering\Camera.cpp" />
@@ -62,6 +62,7 @@
     <ClInclude Include="include\ecs\ComponentDataArray.h" />
     <ClInclude Include="include\ecs\Entity.h" />
     <ClInclude Include="include\ecs\EntityManager.h" />
+    <ClInclude Include="include\ecs\EntityQuery.h" />
     <ClInclude Include="include\ecs\SystemBase.h" />
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\Main.h" />
