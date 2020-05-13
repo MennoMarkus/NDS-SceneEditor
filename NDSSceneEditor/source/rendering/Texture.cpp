@@ -86,7 +86,7 @@ namespace nds_se
 		TextureCompressor textureCompressor(m_compressedTextureData);
 		textureCompressor.setQuantizeAlgorithm(m_tileCompressionAlgorithm);
 		textureCompressor.setColorError(m_colorCompressionError);
-		textureCompressor.compress(m_compressedTextureData);
+		textureCompressor.compress(m_compressedTextureData, m_compressedPalette, m_compressedBlocks, m_compressedHeaders);
 
 		// Compressed texture can be upscaled. Report if this is the case.
 		m_textureCoordinateScaleFactor = (glm::vec2)m_textureData.getSize() / (glm::vec2)m_compressedTextureData.getSize();

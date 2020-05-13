@@ -29,12 +29,12 @@ namespace nds_se
 		FreeImage_Unload(temp);
 	}
 
-	void TextureCompressor::compress(TextureData& o_compressedTextureData)
+	void TextureCompressor::compress(TextureData& o_compressedTextureData, std::vector<RGBQUAD>& o_palette, std::vector<unsigned char>& o_blocks, std::vector<unsigned short>& o_headers)
 	{
 		o_compressedTextureData.create(m_texture.getSize(), 24);
-		m_palette.clear();
-		m_blocks.clear();
-		m_headers.clear();
+		o_palette.clear();
+		o_blocks.clear();
+		o_headers.clear();
 
 		RGBQUAD padColor;
 		padColor.rgbRed = 255;
@@ -114,12 +114,12 @@ namespace nds_se
 				int minDifference = std::numeric_limits<int>::max();
 				int minDifferenceBase = 0;
 
-				for (base = 0; base < int(m_palette.size()) - (colorCount - 1); base += 2)
+				for (base = 0; base < int(o_palette.size()) - (colorCount - 1); base += 2)
 				{
 					int currentMaxDifference = 0;
 					for (int i = 0; i < colorCount; ++i)
 					{
-						int difference = getColorDifference(m_palette[(size_t)base + i], palette[i]);
+						int difference = getColorDifference(o_palette[(size_t)base + i], palette[i]);
 						currentMaxDifference = std::max(currentMaxDifference, difference);
 					}
 
@@ -135,13 +135,13 @@ namespace nds_se
 					base = minDifferenceBase;
 				else
 				{
-					base = int(m_palette.size());
+					base = int(o_palette.size());
 
 					for (int i = 0; i < colorCount; ++i)
-						m_palette.push_back(palette[i]);
+						o_palette.push_back(palette[i]);
 
 					for (int i = colorCount; i < colorPadCount; ++i)
-						m_palette.push_back(padColor);
+						o_palette.push_back(padColor);
 				}
 				assert((base & 1) == 0);
 
@@ -149,7 +149,7 @@ namespace nds_se
 				unsigned short header = 0;
 				header |= (base >> 1) & ((1 << 14) - 1);
 				header |= blockMode;
-				m_headers.push_back(header);
+				o_headers.push_back(header);
 
 				// Calculate and add the tile block
 				for (int iy = TILE_HEIGHT - 1; iy >= 0; --iy)
@@ -161,7 +161,7 @@ namespace nds_se
 						assert((val & 3) == val);
 						row |= val << (ix * 2);
 					}
-					m_blocks.push_back(row);
+					o_blocks.push_back(row);
 				}
 
 				// Add the decompressed tile block to the decompressed result

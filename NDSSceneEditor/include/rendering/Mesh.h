@@ -1,17 +1,12 @@
 #pragma once
 #include <vector>
+#include "rendering/Primative.h"
 #include "rendering/Vertex.h"
 #include "rendering/Texture.h"
 #include "services/resourceAllocator/ResourceID.h"
 
 namespace nds_se
 {
-	enum PrimativeType
-	{
-		TRIANGLES = 0x0004,
-		TRIANGLE_STRIP = 0x0005
-	};
-
 	class Mesh
 	{
 	private:

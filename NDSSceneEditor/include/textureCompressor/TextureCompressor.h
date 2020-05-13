@@ -26,15 +26,10 @@ namespace nds_se
 		unsigned int m_colorError = 8;
 		FREE_IMAGE_QUANTIZE m_quantizeAlgorithm = FIQ_WUQUANT;
 
-		// Compressed data
-		std::vector<RGBQUAD> m_palette;
-		std::vector<unsigned char> m_blocks;
-		std::vector<unsigned short> m_headers;
-
 	public:
 		// The textureCompressor will resize textures to the nearest multiple of 4 on each axis.
 		TextureCompressor(TextureData& texture);
-		void compress(TextureData& o_compressedTextureData);
+		void compress(TextureData& o_compressedTextureData, std::vector<RGBQUAD>& o_palette, std::vector<unsigned char>& o_blocks, std::vector<unsigned short>& o_headers);
 
 		unsigned int getColorError() const { return m_colorError; }
 		void setColorError(unsigned int error) { m_colorError = error <= 1 ? 1 : error; }

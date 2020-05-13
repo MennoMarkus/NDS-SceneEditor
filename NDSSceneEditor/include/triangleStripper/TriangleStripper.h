@@ -4,16 +4,10 @@
 #include "triangleStripper/Triangle.h"
 #include "triangleStripper/TriangleHeap.h"
 #include "triangleStripper/connectivityGraph/TriangleConnectivityGraph.h"
-#include "rendering/Mesh.h"
+#include "rendering/Primative.h"
 
 namespace nds_se
 {
-	struct Primative
-	{
-		PrimativeType m_type;
-		std::vector<unsigned int> m_indices;
-	};
-
 	class TriangleStripper
 	{
 	private:
