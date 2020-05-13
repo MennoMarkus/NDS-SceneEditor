@@ -4,10 +4,11 @@
 #include "rendering/Camera.h"
 #include "rendering/Model.h"
 #include "rendering/ShaderProgram.h"
+#include "services/Service.h"
 
 namespace nds_se
 {
-	class Renderer
+	class Renderer : public Service
 	{
 	private:
 		glm::mat4 m_viewProjection;

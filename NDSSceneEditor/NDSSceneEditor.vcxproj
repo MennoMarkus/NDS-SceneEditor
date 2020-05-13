@@ -52,6 +52,7 @@
     <ClCompile Include="source\rendering\Renderer.cpp" />
     <ClCompile Include="source\services\ServiceLocator.cpp" />
     <ClCompile Include="source\screen\window\Window.cpp" />
+    <ClCompile Include="source\systems\SysDrawModels.cpp" />
     <ClCompile Include="source\systems\SysScenegraph.cpp" />
     <ClCompile Include="source\textureCompressor\TextureCompressor.cpp" />
     <ClCompile Include="source\triangleStripper\connectivityGraph\TriangleConnectivityGraph.cpp" />
@@ -59,6 +60,7 @@
     <ClCompile Include="source\triangleStripper\TriangleStripper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\components\CmpModel.h" />
     <ClInclude Include="include\components\CmpTransform.h" />
     <ClInclude Include="include\ecs\ComponentDataArray.h" />
     <ClInclude Include="include\ecs\Entity.h" />
@@ -88,6 +90,7 @@
     <ClInclude Include="include\services\Service.h" />
     <ClInclude Include="include\services\ServiceLocator.h" />
     <ClInclude Include="include\screen\window\Window.h" />
+    <ClInclude Include="include\systems\SysDrawModels.h" />
     <ClInclude Include="include\systems\SysScenegraph.h" />
     <ClInclude Include="include\triangleStripper\connectivityGraph\TriangleConnectivityGraphTypes.h" />
     <ClInclude Include="include\triangleStripper\Triangle.h" />

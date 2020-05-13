@@ -7,6 +7,9 @@
 #include "ecs/SystemBase.h"
 #include "systems/SysScenegraph.h"
 
+#include "components/CmpTransform.h"
+#include "components/CmpModel.h"
+
 namespace nds_se
 {
 	Application::Application() : 
@@ -20,6 +23,9 @@ namespace nds_se
 		ServiceLocator::get().provideService<ResourceAllocator<Texture>>(&m_textureManager);
 		ServiceLocator::get().provideService<ResourceAllocator<ShaderProgram>>(&m_shaderManager);
 		ServiceLocator::get().provideService<ResourceAllocator<Model>>(&m_modelManager);
+		ServiceLocator::get().provideService<Renderer>(&m_renderer);
+		ServiceLocator::get().provideService<Camera>(&m_camera);
+		ServiceLocator::get().provideService<Window>(&m_window);
 
 		// Setup rendering
 		m_renderer.setViewProjectionMatrix(m_camera.getViewProjectionMatrix(m_window.getSize()));
@@ -43,7 +49,33 @@ namespace nds_se
 
 	void Application::run()
 	{
+		// Create systems
+		std::unique_ptr<ISystemBase> SysModelRendering(new SystemBase<CmpTransform, CmpModel>("ModelRendering",
+			[](Entity entity, CmpTransform& transform, CmpModel& model){
+			Renderer* renderer = ServiceLocator::get().getService<Renderer>();
+			Camera* camera = ServiceLocator::get().getService<Camera>();
+			Window* window = ServiceLocator::get().getService<Window>();
+			
+			renderer->setViewProjectionMatrix(camera->getViewProjectionMatrix(window->getSize()));
+			renderer->drawModel(model.model, transform.matrix);
+		}
+		));
+		m_entityManager.registerSystem(std::move(SysModelRendering));
+
+		// Register missing components
+		m_entityManager.registerComponent<std::string>();
+		m_entityManager.registerComponent<int>();
+		m_entityManager.registerComponent<float>();
+		
 		ResourceID<Model> model = m_modelManager.loadResource("resources/models/boxroom/Boxroom.obj");
+		CmpModel cmpModel;
+		cmpModel.model = model;
+
+		Entity entModel = m_entityManager.createEntity();
+		m_entityManager.setComponent<std::string>(entModel, "model0");
+		m_entityManager.setComponent(entModel, cmpModel);
+		m_entityManager.addComponent<CmpTransform>(entModel);
+		
 		glm::vec3 modelTranslation = { 0.0f, 0.0f, 0.0f };
 
 		float currentTime = (float)glfwGetTime();
@@ -63,8 +95,8 @@ namespace nds_se
 			m_entityManager.update();
 
 			// Render models
-			m_renderer.setViewProjectionMatrix(m_camera.getViewProjectionMatrix(m_window.getSize()));
-			m_renderer.drawModel(model, glm::translate(glm::mat4(1), modelTranslation));
+			//m_renderer.setViewProjectionMatrix(m_camera.getViewProjectionMatrix(m_window.getSize()));
+			//m_renderer.drawModel(model, glm::translate(glm::mat4(1), modelTranslation));
 
 			m_logViewUI.render();
 			m_window.endRender();

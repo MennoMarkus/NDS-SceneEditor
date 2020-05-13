@@ -7,10 +7,11 @@
 #include "GLFW/glfw3.h"
 
 #include "screen/window/WindowInput.h"
+#include "services/Service.h"
 
 namespace nds_se
 {
-	class Window
+	class Window : public Service
 	{
 		friend class InputManager;
 

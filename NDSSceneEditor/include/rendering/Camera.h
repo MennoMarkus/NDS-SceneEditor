@@ -1,11 +1,13 @@
 #pragma once
 #include "glm/glm.hpp"
 
+#include "services/Service.h"
+
 namespace nds_se
 {
 	class Window;
 
-	class Camera
+	class Camera : public Service
 	{
 	private:
 		glm::vec3 m_position = { 0, 0, 0 };
