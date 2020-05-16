@@ -8,11 +8,25 @@ namespace nds_se
 	{
 		int lastCommandIdx = 0;
 
-		// Pack all commands into one list
+		// Find the last NOP command to see if we can appened to the packed commands list.
+		if (o_packedCommands.size() > 0)
+		{
+			PackedFIFOCommand lastPackedCommand = o_packedCommands.back();
+			int i = 3;
+			for (; i >= 0; i--)
+			{
+				if (lastPackedCommand.m_commands[i] != PackedFIFOCommand::FIFOCommand::NOP)
+					break;
+			}
+
+			lastCommandIdx = i;
+		}
+
+		// Pack all commands into one list.
 		for (auto& primative : primatives)
 			getCommandsFromPrimative(primative, vertices, o_packedCommands, lastCommandIdx);
 
-		// Pad the command list to fill up the last command
+		// Pad the command list to fill up the last command.
 		if (o_packedCommands.size() > 0 && lastCommandIdx != 3)
 		{
 			for (int i = lastCommandIdx + 1; i < 4; i++)
@@ -25,7 +39,7 @@ namespace nds_se
 		PackedFIFOCommand currentPackedCommand = PackedFIFOCommand();
 		int currentCommandID = 0;
 
-		// Generate random color
+		// Generate random color.
 		glm::vec3 debugColor = glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0));
 
 		// Add to the last packed command if there is still space
@@ -35,11 +49,11 @@ namespace nds_se
 			currentCommandID = io_lastCommandIdx + 1;
 		}
 
-		// Set primative polygon settings
+		// Set primative polygon settings.
 		currentPackedCommand.setPOLYGON_ATTRCommand(currentCommandID, PolygonAttrFormat::POLY_CULL_BACK, 31, 0);
 		moveToNextCommand(currentCommandID, currentPackedCommand, o_packedCommands);
 
-		// Start primate
+		// Start primate.
 		currentPackedCommand.setBEGIN_VTXSCommand(currentCommandID, primative.m_type);
 		moveToNextCommand(currentCommandID, currentPackedCommand, o_packedCommands);
 
@@ -50,10 +64,10 @@ namespace nds_se
 			bool materialChanged = false;
 
 			/*
-			 * Order of these commands is important for performance.
+			 * Order of these commands is important for performance on the NDS.
 			 */
 
-			// Set color command
+			// Set color command.
 			if (previousVertex == nullptr || previousVertex->color != currentVertex.color)
 			{
 				materialChanged = true;
@@ -65,9 +79,10 @@ namespace nds_se
 				moveToNextCommand(currentCommandID, currentPackedCommand, o_packedCommands);
 			}
 
-			// Set normal command
+			// Set normal command.
 			if (m_useNormals)
 			{
+				// Normal command must be re-executed after changes to material or lighting.
 				if (previousVertex == nullptr || materialChanged || previousVertex->normal != currentVertex.normal)
 				{
 					currentPackedCommand.setNORMALCommand(currentCommandID, currentVertex.normal);
@@ -75,7 +90,7 @@ namespace nds_se
 				}
 			}
 
-			// Set vertex command
+			// Set vertex command.
 			if (m_useLowVertexPrecision)
 				currentPackedCommand.setVTX10Command(currentCommandID, currentVertex.position);
 			else
@@ -83,11 +98,11 @@ namespace nds_se
 
 			moveToNextCommand(currentCommandID, currentPackedCommand, o_packedCommands);
 
-			// Set previous to compare to next
+			// Set previous to compare to next.
 			previousVertex = &currentVertex;
 		}
 
-		// Add last command pack
+		// Add last command pack.
 		if (currentCommandID != 0)
 			o_packedCommands.push_back(currentPackedCommand);
 		io_lastCommandIdx = currentCommandID == 0 ? 3 : currentCommandID - 1;

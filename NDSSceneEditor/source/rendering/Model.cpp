@@ -27,6 +27,7 @@ namespace nds_se
 	{
 		// Open and process model file
 		const unsigned int importerFlags = aiProcess_JoinIdenticalVertices |
+											aiProcess_GenNormals |
 											aiProcess_Triangulate |
 											aiProcess_FlipUVs |
 											aiProcess_LimitBoneWeights |
