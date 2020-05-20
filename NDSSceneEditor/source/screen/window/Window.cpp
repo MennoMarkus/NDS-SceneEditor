@@ -51,6 +51,8 @@ namespace nds_se
 
 		// OpenGL settings
 		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS); // Same as NDS
 		glCullFace(GL_BACK);
 
 		//Set up imgui
@@ -85,7 +87,7 @@ namespace nds_se
 
 	void Window::beginRender()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Start the Dear ImGui frame
 		ImGui_ImplOpenGL3_NewFrame();
