@@ -9,11 +9,11 @@
 
 namespace nds_se
 {
-	Mesh::Mesh(PrimativeType type, const std::vector<Vertex>& vertexBuffer, const std::vector<unsigned int>& indexBuffer, ResourceID<Texture> textureID) :
-		m_vertices(vertexBuffer),
-		m_indices(indexBuffer),
+	Mesh::Mesh(MeshType type, const Vertices& vertices, const Indices& indices, ResourceID<Texture> textureID) :
+		m_vertices(vertices),
+		m_indices(indices),
 		m_textureID(textureID),
-		m_primativeType(type)
+		m_meshType(type)
 	{
 		// Generate vertex buffer array
 		glGenVertexArrays(1, &m_vertexArrayID);
@@ -90,8 +90,8 @@ namespace nds_se
 		// Draw the mesh
 		glBindVertexArray(m_vertexArrayID);
 		if (m_indexBufferID == 0)
-			glDrawArrays((GLenum)m_primativeType, 0, (GLsizei)m_vertices.size());
+			glDrawArrays((GLenum)m_meshType, 0, (GLsizei)m_vertices.size());
 		else
-			glDrawElements((GLenum)m_primativeType, (GLsizei)m_indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements((GLenum)m_meshType, (GLsizei)m_indices.size(), GL_UNSIGNED_INT, 0);
 	}
 }

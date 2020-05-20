@@ -1,5 +1,6 @@
 #pragma once
 #include "triangleStripper/connectivityGraph/TriangleConnectivityGraphTypes.h"
+#include "rendering/Mesh.h"
 
 namespace nds_se
 {
@@ -16,7 +17,7 @@ namespace nds_se
 		TriangleConnectivityGraph(const TriangleConnectivityGraph&) = delete;
 		TriangleConnectivityGraph& operator=(const TriangleConnectivityGraph&) = delete;
 
-		void init(const std::vector<unsigned int>& indices);
+		void init(const Indices& indices);
 
 		bool empty() const;
 		size_t size() const;

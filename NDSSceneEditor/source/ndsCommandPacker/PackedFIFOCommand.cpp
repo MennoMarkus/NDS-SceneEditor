@@ -57,7 +57,7 @@ namespace nds_se
 		setCommand(commandId, FIFOCommand::POLYGON_ATTR, { ((unsigned int)format | (alpha << 16) | (polygonId << 24)) });
 	}
 
-	void PackedFIFOCommand::setBEGIN_VTXSCommand(int commandId, PrimativeType type)
+	void PackedFIFOCommand::setBEGIN_VTXSCommand(int commandId, MeshType type)
 	{
 		uint32_t typeID = 0;
 		switch (type)

@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "glm/glm.hpp"
-#include "rendering/Primative.h"
+#include "rendering/Mesh.h"
 
 namespace nds_se
 {
@@ -45,6 +45,6 @@ namespace nds_se
 		void setVTX16Command(int commandId, glm::vec3 position);
 		void setVTX10Command(int commandId, glm::vec3 position);
 		void setPOLYGON_ATTRCommand(int commandId, PolygonAttrFormat format, unsigned int alpha, unsigned int polygonId);
-		void setBEGIN_VTXSCommand(int commandId, PrimativeType type);
+		void setBEGIN_VTXSCommand(int commandId, MeshType type);
 	};
 }

@@ -11,7 +11,7 @@ namespace nds_se
 		m_arcs.reserve(nodesCount * 2);
 	}
 
-	void TriangleConnectivityGraph::init(const std::vector<unsigned int>& indices)
+	void TriangleConnectivityGraph::init(const Indices& indices)
 	{
 		assert((indices.size() / 3) == size());
 

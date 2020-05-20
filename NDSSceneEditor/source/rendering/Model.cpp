@@ -80,8 +80,8 @@ namespace nds_se
 
 	void Model::processAiMesh(const aiMesh* mesh, const aiScene* scene)
 	{
-		std::vector<Vertex> vertices;
-		std::vector<unsigned int> indices;
+		Vertices vertices;
+		Indices indices;
 		ResourceID<Texture> textureID;
 		
 		// Get vertices
@@ -162,14 +162,20 @@ namespace nds_se
 		}
 
 		// Post process indices into triangle strips
-		std::vector<Primative> primatives;
+		std::vector<Indices> triangleStrips;
+		Indices triangles;
+
 		TriangleStripper triangleStripper(indices);
-		triangleStripper.strip(primatives);
+		triangleStripper.strip(triangleStrips, triangles);
 		
-		for (auto& primative : primatives)
+		// TODO: separte out vertices? Not needed for NDS exporting but would be more efficient for the OpenGL renderer.
+		for (auto& triangleStrip : triangleStrips)
 		{
-			// TODO: separte out vertices? Not needed for NDS exporting but would be more efficient for the OpenGL renderer.
-			m_meshes.emplace_back(primative.m_type, vertices, primative.m_indices, textureID);
+			m_meshes.emplace_back(TRIANGLE_STRIP, vertices, triangleStrip, textureID);
+		}
+		if (triangles.size() > 0)
+		{
+			m_meshes.emplace_back(TRIANGLES, vertices, triangles, textureID);
 		}
 	}
 }

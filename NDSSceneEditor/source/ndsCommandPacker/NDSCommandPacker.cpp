@@ -4,7 +4,7 @@
 
 namespace nds_se
 {
-	void NDSCommandPacker::pack(const std::vector<Primative>& primatives, const std::vector<Vertex>& vertices, std::vector<PackedFIFOCommand>& o_packedCommands)
+	void NDSCommandPacker::pack(MeshType type, const Indices& indices, const Vertices& vertices, std::vector<PackedFIFOCommand>& o_packedCommands)
 	{
 		int lastCommandIdx = 0;
 
@@ -23,8 +23,7 @@ namespace nds_se
 		}
 
 		// Pack all commands into one list.
-		for (auto& primative : primatives)
-			getCommandsFromPrimative(primative, vertices, o_packedCommands, lastCommandIdx);
+		addCommands(type, indices, vertices, o_packedCommands, lastCommandIdx);
 
 		// Pad the command list to fill up the last command.
 		if (o_packedCommands.size() > 0 && lastCommandIdx != 3)
@@ -34,7 +33,7 @@ namespace nds_se
 		}
 	}
 
-	void NDSCommandPacker::getCommandsFromPrimative(const Primative& primative, const std::vector<Vertex>& vertices, std::vector<PackedFIFOCommand>& o_packedCommands, int& io_lastCommandIdx)
+	void NDSCommandPacker::addCommands(MeshType type, const Indices& indices, const Vertices& vertices, std::vector<PackedFIFOCommand>& o_packedCommands, int& io_lastCommandIdx)
 	{
 		PackedFIFOCommand currentPackedCommand = PackedFIFOCommand();
 		int currentCommandID = 0;
@@ -49,18 +48,18 @@ namespace nds_se
 			currentCommandID = io_lastCommandIdx + 1;
 		}
 
-		// Set primative polygon settings.
+		// Set polygon settings.
 		currentPackedCommand.setPOLYGON_ATTRCommand(currentCommandID, PolygonAttrFormat::POLY_CULL_BACK, 31, 0);
 		moveToNextCommand(currentCommandID, currentPackedCommand, o_packedCommands);
 
 		// Start primate.
-		currentPackedCommand.setBEGIN_VTXSCommand(currentCommandID, primative.m_type);
+		currentPackedCommand.setBEGIN_VTXSCommand(currentCommandID, type);
 		moveToNextCommand(currentCommandID, currentPackedCommand, o_packedCommands);
 
 		const Vertex* previousVertex = nullptr;
-		for (int i = 0; i < primative.m_indices.size(); i++)
+		for (int i = 0; i < indices.size(); i++)
 		{
-			const Vertex& currentVertex = vertices[primative.m_indices[i]];
+			const Vertex& currentVertex = vertices[indices[i]];
 			bool materialChanged = false;
 
 			/*

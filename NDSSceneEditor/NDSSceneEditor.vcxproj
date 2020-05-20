@@ -73,7 +73,6 @@
     <ClInclude Include="include\rendering\Camera.h" />
     <ClInclude Include="include\rendering\Mesh.h" />
     <ClInclude Include="include\rendering\Model.h" />
-    <ClInclude Include="include\rendering\Primative.h" />
     <ClInclude Include="include\rendering\ShaderProgram.h" />
     <ClInclude Include="include\rendering\Texture.h" />
     <ClInclude Include="include\rendering\TextureData.h" />

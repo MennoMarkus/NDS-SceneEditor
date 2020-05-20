@@ -4,7 +4,6 @@
 #include "triangleStripper/Triangle.h"
 #include "triangleStripper/TriangleHeap.h"
 #include "triangleStripper/connectivityGraph/TriangleConnectivityGraph.h"
-#include "rendering/Primative.h"
 
 namespace nds_se
 {
@@ -18,17 +17,20 @@ namespace nds_se
 		size_t m_currentStripID;
 		TriangleHeap m_triangleHeap;
 		TriangleConnectivityGraph m_connectivityGraph;
-		std::vector<Primative> m_primatives;
 		std::vector<unsigned int> m_candidateTriangleIDs;
 
+		// Ouptut data
+		std::vector<Indices> m_triangleStrips;
+		Indices m_triangles;
+
 	public:
-		TriangleStripper(const std::vector<unsigned int>& indices);
-		void strip(std::vector<Primative>& o_primatives);
+		TriangleStripper(const Indices& indices);
+		void strip(std::vector<Indices>& o_triangleStrips, Indices& o_triangles);
 
 	private:
 		void initTriangleHeap();
-		void addTriangleStripPrimatives();
-		void addTrianglesPrimative();
+		void addTriangleStrips();
+		void addTriangles();
 
 		TriangleStrip getBestTriangleStrip();
 

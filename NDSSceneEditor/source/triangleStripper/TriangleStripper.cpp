@@ -5,7 +5,7 @@
 
 namespace nds_se 
 {
-	TriangleStripper::TriangleStripper(const std::vector<unsigned int>& indices) :
+	TriangleStripper::TriangleStripper(const Indices& indices) :
 		m_connectivityGraph(indices.size() / 3),
 		m_currentStripID(0),
 		m_firstRun(true)
@@ -13,7 +13,7 @@ namespace nds_se
 		m_connectivityGraph.init(indices);
 	}
 
-	void TriangleStripper::strip(std::vector<Primative>& o_primatives)
+	void TriangleStripper::strip(std::vector<Indices>& o_triangleStrips, Indices& o_triangles)
 	{
 		// Reset all data in case strip is called twice.
 		if (!m_firstRun) 
@@ -33,11 +33,12 @@ namespace nds_se
 
 		// Run stripify process.
 		initTriangleHeap();
-		addTriangleStripPrimatives();
-		addTrianglesPrimative();
+		addTriangleStrips();
+		addTriangles();
 	
 		// Return the resulting vector by swapping references.
-		m_primatives.swap(o_primatives);
+		m_triangleStrips.swap(o_triangleStrips);
+		m_triangles.swap(o_triangles);
 	}
 
 	void TriangleStripper::initTriangleHeap()
@@ -56,7 +57,7 @@ namespace nds_se
 		}
 	}
 
-	void TriangleStripper::addTriangleStripPrimatives()
+	void TriangleStripper::addTriangleStrips()
 	{
 		while (m_triangleHeap.size() > 0)
 		{
@@ -83,29 +84,17 @@ namespace nds_se
 		}
 	}
 
-	void TriangleStripper::addTrianglesPrimative()
+	void TriangleStripper::addTriangles()
 	{
-		// Add all the triangles that are not part of any strip into a single triangles primative
-		Primative trianglesPrimative;
-		trianglesPrimative.m_type = TRIANGLES;
-
-		m_primatives.push_back(trianglesPrimative);
-		std::vector<unsigned int>& indices = m_primatives.back().m_indices;
-
+		// Add all the triangles that are not part of any strip into a single triangles list.
 		for (size_t i = 0; i < m_connectivityGraph.size(); i++)
 		{
 			if (!m_connectivityGraph[i].isMarked())
 			{
-				indices.push_back(m_connectivityGraph[i]->m_index1);
-				indices.push_back(m_connectivityGraph[i]->m_index2);
-				indices.push_back(m_connectivityGraph[i]->m_index3);
+				m_triangles.push_back(m_connectivityGraph[i]->m_index1);
+				m_triangles.push_back(m_connectivityGraph[i]->m_index2);
+				m_triangles.push_back(m_connectivityGraph[i]->m_index3);
 			}
-		}
-
-		// Don't add the triangles primative if there are no left over triangles.
-		if (indices.size() == 0)
-		{
-			m_primatives.pop_back();
 		}
 	}
 
@@ -310,8 +299,7 @@ namespace nds_se
 		TriangleStripOrder order = strip.m_order;
 
 		// Create a new triangle strip.
-		m_primatives.push_back(Primative());
-		m_primatives.back().m_type = TRIANGLE_STRIP;
+		m_triangleStrips.push_back(Indices());
 		addTriangleStripTriangle(*m_connectivityGraph[start], order, true);
 		markTriangle(start);
 
@@ -357,7 +345,7 @@ namespace nds_se
 	{
 		if (isBuildStrip)
 		{
-			m_primatives.back().m_indices.push_back(index);
+			m_triangleStrips.back().push_back(index);
 		}
 	}
 

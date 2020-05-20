@@ -1,5 +1,4 @@
 #pragma once
-#include "rendering/Primative.h"
 #include "rendering/Vertex.h"
 #include "ndsCommandPacker/PackedFIFOCommand.h"
 
@@ -15,10 +14,11 @@ namespace nds_se
 	public:
 		NDSCommandPacker() = default;
 
-		void pack(const std::vector<Primative>& primatives, const std::vector<Vertex>& vertices, std::vector<PackedFIFOCommand>& o_packedCommands);
+		// Can append to an excisting o_packedCommands list.
+		void pack(MeshType type, const Indices& indices, const Vertices& vertices, std::vector<PackedFIFOCommand>& o_packedCommands);
 
 	private:
-		void getCommandsFromPrimative(const Primative& primative, const std::vector<Vertex>& vertices, std::vector<PackedFIFOCommand>& o_packedCommands, int& io_lastCommandIdx);
+		void addCommands(MeshType type, const Indices& indices, const Vertices& vertices, std::vector<PackedFIFOCommand>& o_packedCommands, int& io_lastCommandIdx);
 		void moveToNextCommand(int& o_currentCommandID, PackedFIFOCommand& o_currentPackedCommand, std::vector<PackedFIFOCommand>& o_packedCommands);
 	};
 }
